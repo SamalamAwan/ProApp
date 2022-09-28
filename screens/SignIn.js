@@ -12,7 +12,7 @@ export const SignIn = () => {
   const { signIn, updateAuthGlobal, setRelog } = React.useContext(AuthContext);
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
-  const [userType, setuserType] = useState('2');
+  const [userType, setuserType] = useState('');
   const [QR, setQR] = useState('');
   const {colors} = useTheme();
 
@@ -26,29 +26,7 @@ export const SignIn = () => {
   const hideModal = () => setVisible(false);
   const containerStyle = { backgroundColor: 'white', padding: 5, margin: 10, display:"flex", height:300};
   const {Profile} = React.useContext(AuthContext)
-  React.useEffect(() => {
-    if (!visible){
-      const interval = setInterval(() => {
-        ref_input.current.focus()
-      }, 100);
-      return () => clearInterval(interval);
-    }
-  }, [visible])
 
-
-
-  const sendQR = React.useCallback((QR) => {
-    setIsLoading(true)
-    let data = (QR.split("-"))
-    updateAuthGlobal(data[2], data[0], userType)
-    return () => {data = "";setIsLoading(false)}
-  },[updateAuthGlobal, userType])
-
-  React.useEffect(() =>{
-    if (QR != ""){
-    sendQR(QR)
-    }
-  },[QR, sendQR])
 
   const devSignIn = React.useCallback(() => {
     setUserName("sawan")
@@ -85,8 +63,7 @@ export const SignIn = () => {
       })
       .then((responseData) => {
         console.log(responseData)
-        //signIn(responseData.auth_key, responseData.jwt, responseData.token.data.user_type, responseData.username, responseData.namesurname, responseData.user_id, responseData.token.data.administrator,responseData.token.data.supervisor, responseData.token.data.manager, responseData.token.data.user_class_name);
-        //setRelog(false)
+        signIn(responseData.auth_key, responseData.jwt, responseData.token.data.user_type, responseData.username, responseData.namesurname, responseData.user_id, responseData.token.data.administrator,responseData.token.data.supervisor, responseData.token.data.manager, responseData.token.data.user_class_name);
       })
       .catch((error) => {
         alert("Unable to log in - " + error.toString());
@@ -96,41 +73,6 @@ export const SignIn = () => {
   return (
     <ScreenContainer nomargin={true}>
       <ImageBackground source={require('../assets/loginBG.png')} style={styles.BGimage}>
-      <Portal>
-        <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={containerStyle}>
-        <KeyboardAvoidingView contentContainerStyle={styles.loginContainer} behavior={"padding"} keyboardVerticalOffset={60}>
-      <View style={styles.loginWrapper}>
-
-      {/* <ToggleButton.Row onValueChange={value => setuserType(value)} style={styles.toggleButtonGroup} value={userType}>
-        <ToggleButton icon="account-supervisor" value="1" style={userType == 1 ? [styles.toggleButton,{backgroundColor: colors.primary}] : styles.toggleButton} color={userType == 1 ? colors.accent : colors.disabled} />
-        <ToggleButton icon="package-variant-closed" value="2" style={userType == 2 ? [styles.toggleButton,{backgroundColor: colors.primary}] : styles.toggleButton} color={userType == 2 ? colors.accent : colors.disabled}  />
-      </ToggleButton.Row> */}
-      <TextInput
-      mode="flat"
-      underlineColor={"#eee"}
-      style={[styles.logInInput, {marginTop:10}]}
-        placeholder="Username"
-        placeholderTextColor="#CECECE"
-        onChangeText={text => setUserName(text)}
-        value={userName} />
-      <TextInput
-            underlineColor={"#eee"}
-      mode="flat"
-            style={styles.logInInput}
-        secureTextEntry
-        placeholder="Password"
-        placeholderTextColor="#CECECE"
-        onChangeText={text => setPassword(text)}
-        value={password}/>
-
-      <Button mode="contained" style={styles.logInButton} labelStyle={{color:colors.white, textAlignVertical:"center"}} onPress={() => getAuth()}>LOGIN</Button>
-      <Button mode="outlined" style={styles.logInButton} labelStyle={{ color: colors.primary, textAlignVertical: "center" }} onPress={() => hideModal()}>USE CARD</Button>
-      <TouchableOpacity>
-    </TouchableOpacity>
-</View>
-</KeyboardAvoidingView>
-        </Modal>
-      </Portal>
       <IconButton
         icon="card-bulleted-off"
         style={{ position: "absolute", top: 0, margin: 20, right:0, padding:0, width:50, height:50 }}
@@ -153,47 +95,29 @@ export const SignIn = () => {
            source={require('../assets/prologo.png')}
            resizeMode={"contain"}
       />
-
-<View style={{
-        flexDirection: 'row',
-        position: 'relative',
-        height: 50,
-        paddingHorizontal:60,
-        marginBottom: 20
-      }}>
-        <TouchableOpacity 
-        style={userType == 2 ? [styles.toggleButton,styles.toggleButtonActive] : styles.toggleButton}
-        onPress={() => setuserType("2")}>
-          <Text style={userType == 2 ? [styles.toggleButtonText,styles.toggleButtonTextActive] : styles.toggleButtonText}>
-            Packer
-        </Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-                style={userType == 1 ? [styles.toggleButton,styles.toggleButtonActive] : styles.toggleButton}
-        onPress={() => setuserType("1")}>
-        <Text style={userType == 1 ? [styles.toggleButtonText,styles.toggleButtonTextActive] : styles.toggleButtonText}>
-           Manager
-        </Text>
-        </TouchableOpacity>
-      </View>
 {!isLoading &&
-            <View style={{ alignSelf: "center", alignContent: "center", display: "flex" }}><Subheading>Scan user QR Code now</Subheading>
-          
-              <MaterialCommunityIcons style={{ alignSelf: "center" }} name="qrcode-scan" size={50} color={colors.primary} />
+            <View style={{ alignSelf: "center", alignContent: "center", display: "flex" }}><TextInput
+            mode="flat"
+            underlineColor={"#eee"}
+            style={[styles.logInInput, {marginTop:10}]}
+              placeholder="Username"
+              placeholderTextColor="#CECECE"
+              onChangeText={text => setUserName(text)}
+              value={userName} />
+            <TextInput
+                  underlineColor={"#eee"}
+            mode="flat"
+                  style={styles.logInInput}
+              secureTextEntry
+              placeholder="Password"
+              placeholderTextColor="#CECECE"
+              onChangeText={text => setPassword(text)}
+              value={password}/>
+                    <Button mode="contained" style={styles.logInButton} labelStyle={{color:colors.white, textAlignVertical:"center"}} onPress={() => getAuth()}>LOGIN</Button>
             </View>}
           {isLoading &&
             <ActivityIndicator animating={true} size="large" />
           }
-          <TextInput
-            style={{ width: 0, height: 0 }}
-            autoFocus={true}
-            clearTextOnFocus={true}
-            placeholder="Barcode"
-            placeholderTextColor="#003f5c"
-            onChangeText={(text) => setQR(text)}
-            value={QR}
-            ref={ref_input}
-            showSoftInputOnFocus={false} />
 </ImageBackground>
     </ScreenContainer>
   );

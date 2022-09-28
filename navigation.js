@@ -16,8 +16,9 @@ import { SiteVisit } from './screens/SiteVisit';
 import { HomeScreen } from './screens/Home';
 import { SignIn } from './screens/SignIn';
 import * as Device from 'expo-device';
+import { Splash } from './screens/splash';
 
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const windowWidth = Dimensions.get('window').width;
@@ -37,8 +38,35 @@ export default function Navigation(props) {
 const RootStack = createNativeStackNavigator();
 function RootNavigator() {
 
-    const [isLoading, setIsLoading] = React.useState(false);
+    const [isLoading, setIsLoading] = React.useState(true);
     const { Profile } = React.useContext(AuthContext)
+    const { updateAuthGlobal } = React.useContext(AuthContext);
+
+    const getAuth = async () => {
+        try {
+            const authToken = await AsyncStorage.getItem('@auth_token')
+            const username = await AsyncStorage.getItem('@username')
+            if (authToken !== null && username !== null) {
+                return ([username, authToken])
+            }
+            setIsLoading(false)
+        } catch (e) {
+            alert(e)
+        }
+    }
+
+
+    React.useEffect(() => {
+        console.log("hello this happens")
+        if (isLoading) {
+            console.log("so does this")
+            getAuth().then((data) => {
+                console.log(data[0], data[1])
+                updateAuthGlobal(data[0].toString(), data[1].toString(), Profile.userType)
+                setIsLoading(false)
+            })
+        }
+    }, [])
 
     return (
         <RootStack.Navigator headerMode={false}>
@@ -58,7 +86,7 @@ function RootNavigator() {
                         component={DrawerStackScreen}
                         options={{
                             animationEnabled: true,
-                            headerShown:false,
+                            headerShown: false,
                         }}
                     />
                 ) : (
@@ -91,30 +119,30 @@ const AuthStackScreen = () => (
 const DrawerStack = createDrawerNavigator();
 const DrawerStackScreen = () => (
     <DrawerStack.Navigator initialRouteName="Home">
-            <DrawerStack.Screen name="Home" component={HomeStackScreen}  options={{headerShown: true}}  />
-    <DrawerStack.Screen name="Forms" component={FormsTabs}  options={{headerShown: true}}  />
-    <DrawerStack.Screen name="Settings" component={SettingsScreen}  options={{headerShown: true}}  />
-  </DrawerStack.Navigator>
+        <DrawerStack.Screen name="Home" component={HomeStackScreen} options={{ headerShown: true }} />
+        <DrawerStack.Screen name="Forms" component={FormsTabs} options={{ headerShown: true }} />
+        <DrawerStack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: true }} />
+    </DrawerStack.Navigator>
 );
 
 function SettingsScreen() {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Settings!</Text>
-      </View>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Text>Settings!</Text>
+        </View>
     );
-  }
+}
 
 const FormsTabsNav = createBottomTabNavigator();
 
 const FormsTabs = () => {
-  return (
-      <FormsTabsNav.Navigator>
-        <FormsTabsNav.Screen name="Site Inspection" component={SiteInspection} options={{headerShown: false}}  />
-        <FormsTabsNav.Screen name="Pull Out Test" component={PullOut} options={{headerShown: false}}  />
-        <FormsTabsNav.Screen name="Site Visit" component={SiteVisit} options={{headerShown: false}}  />
-      </FormsTabsNav.Navigator>
-  );
+    return (
+        <FormsTabsNav.Navigator>
+            <FormsTabsNav.Screen name="Site Inspection" component={SiteInspection} options={{ headerShown: false }} />
+            <FormsTabsNav.Screen name="Pull Out Test" component={PullOut} options={{ headerShown: false }} />
+            <FormsTabsNav.Screen name="Site Visit" component={SiteVisit} options={{ headerShown: false }} />
+        </FormsTabsNav.Navigator>
+    );
 }
 
 
