@@ -7,7 +7,7 @@ import {ScreenContainer} from '../ScreenContainer'
 export const Splash = () => {
   return (
     <ScreenContainer>
-      <ActivityIndicator animating={true} size="large"/>
+      <ActivityIndicator  animating={true} size="large"/>
     </ScreenContainer>
 )};
 

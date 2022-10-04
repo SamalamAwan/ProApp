@@ -10,11 +10,13 @@ import { lightTheme, darkTheme } from './theme'
 import { ScreenContainer } from './ScreenContainer'
 import * as Device from 'expo-device';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import jwt_decode from "jwt-decode";
+
 
 const androidName = Device.deviceName
 
 export default function App() {
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
   const [deviceId, setDeviceId] = React.useState(androidName)
   const [theme, setTheme] = React.useState(lightTheme);
   const [userToken, setUserToken] = React.useState(null);
@@ -28,6 +30,7 @@ export default function App() {
   const [isSupervisor, setIsSupervisor] = React.useState(null);
   const [isManager, setIsManager] = React.useState(null);
   const [dateGlobal, setDateGlobal] = React.useState(null);
+  const [userClass, setUserClass] = React.useState(null)
   const [jwt, setJwt] = React.useState(null);
   const [authNFC, setAuthNFC] = React.useState(null);
   const [updateError, setUpdateError] = React.useState('')
@@ -59,44 +62,80 @@ export default function App() {
         "deviceID": deviceId
       })
     };
-    console.log(data)
+    //console.log(data)
     return fetch('https://api-veen-e.ewipro.com/v1/authenticate/', data)
       .then((response) => {
         if (!response.ok) throw new Error(response.status);
         else return response.json();
       })
       .then((responseData) => {
-        // let loginURL = Linking.createURL('/', {
-        //   queryParams: { authKey: userToken, userType: userType, user: user },
-        // });
-        setUserType(responseData.token.data.user_type)
-        setUserName(responseData.namesurname)
-        setUserNameLogin(user)
-        setUserID(responseData.user_id)
-        //setAuthNFC(loginURL)
-        setJwt(responseData.jwt)
-        setUserToken(userToken)
-        setIsAdmin(responseData.token.data.administrator)
-        setIsSupervisor(responseData.token.data.supervisor)
-        setIsManager(responseData.token.data.manager)
-        setUserClassName(responseData.token.data.user_class_name)
-        setIsLoading(false)
-        saveAuth(userToken, responseData.token.data.user_type, user)
-        setAdminMode(false)
+        signIn(responseData)
       })
       .catch((error) => {
         alert("Unable to log in - " + error.toString());
       });
   }, [deviceId])
-  const saveAuth = async (auth_key, userName) => {
+  const saveAuth = async (userName, auth_key, userType) => {
     try {
-      await AsyncStorage.setItem("@auth_token", auth_key)
-      await AsyncStorage.setItem("@username", userName)
-      console.log("saved",userName, auth_key)
+      const login = JSON.stringify({user:userName, token:auth_key, type:userType})
+      await AsyncStorage.setItem("@login", login)
+      //console.log("saved",login)
     } catch (e) {
       alert('Failed to save session storage'+e)
     }
   }
+  const getAuth = async () => {
+    try {
+        const login = await AsyncStorage.getItem('@login')
+        if (login !== null) {
+            return JSON.parse(login)
+        }
+        else{
+            return "no"
+        }
+    } catch (e) {
+        alert(e)
+    }
+}
+
+const signIn = (data) => {
+  console.log(data)
+const token = data.jwt;
+var decoded = jwt_decode(token);
+console.log(decoded)
+setUserToken(data.auth_key);
+ setUserType(decoded.data.user_type)
+setJwt(token);
+setUserID(decoded.data.id)
+setUserNameLogin(data.username)
+saveAuth(data.username, data.auth_key, decoded.data.user_type)
+setUserName(decoded.data.name)
+        setUserClassName(decoded.data.user_class_name)
+        setUserClass(decoded.data.userClass)
+        setIsLoading(false)
+}
+
+const deleteAuth = async () => {
+  try {
+    await AsyncStorage.removeItem('@login')
+  } catch(e) {
+    // remove error
+  }
+
+  console.log('Done.')
+}
+
+const signOut = () =>{
+  deleteAuth();
+  setJwt('');
+  setUserToken('')
+  setUserType('')
+  setUserName('')
+  setUserID('')
+  setUserNameLogin('')
+  setUserClass('')
+  setUserClassName('')
+}
 
   const authContext = React.useMemo(() => {
     return {
@@ -118,6 +157,9 @@ export default function App() {
         updateError2: updateError2,
         userClassName:userClassName,
       },
+      signOutGlobal: () => {
+        signOut()
+      },
       toggleThemeGlobal: (status) => {
         if (status == "checked") {
           setTheme(darkTheme)
@@ -132,36 +174,31 @@ export default function App() {
       setRelog: (relog) => {
         setNeedsRelog(relog)
       },
-      signIn: (auth_key, jwt, userType, userName, name, id, isAdmin, isSupervisor, isManager, userClassName) => {
-        console.log(auth_key)
-        console.log(userName)
-        setUserToken(auth_key);
-        setUserType(userType)
-        setJwt(jwt);
-        setUserID(id)
-        setUserNameLogin(userName)
-        setIsAdmin(isAdmin)
-        setIsSupervisor(isSupervisor)
-        setIsManager(isManager)
-        saveAuth(auth_key, userName)
-        setUserName(name)
-        setAdminMode(false)
-        setUserClassName(userClassName)
+      signInGlobal: (data) => {
+        //auth_key, jwt, userType, userName, name, id, isAdmin, isSupervisor, isManager, userClassName
+        //console.log(data)
+        signIn(data)
+        // setUserToken(auth_key);
+        // setUserType(userType)
+        // setJwt(jwt);
+        // setUserID(id)
+        // setUserNameLogin(userName)
+        // setIsAdmin(isAdmin)
+        // setIsSupervisor(isSupervisor)
+        // setIsManager(isManager)
+        // saveAuth(userName, auth_key, userType)
+        // setUserName(name)
+        // setAdminMode(false)
+        // setUserClassName(userClassName)
       },
       expireJWT: (jwt) => {
         setJwt(jwt)
       },
       updateAuthGlobal: (user_name, user_token, user_type) => {
         updateAuth(user_name, user_token, user_type)
-        setUserToken(user_token);
+        setUserToken(user_token)
         setUserType(user_type)
         setUserNameLogin(user_name)
-      },
-      signOut: () => {
-        setUserToken(null);
-        setJwt(null);
-        clearStorage();
-        ClearProfile();
       },
       setDate: (date) => {
         setDateGlobal(date)
@@ -170,22 +207,29 @@ export default function App() {
   }, [jwt, userToken, authNFC, userType, userName, dateGlobal, userID, userNameLogin, deviceId, isAdmin, isSupervisor, isManager, adminMode, updateError, updateError2, userClassName, updateAuth]);
 
 
+  React.useEffect(() => {
+    //console.log("hello this happens")
+    if (isLoading) {
+        //console.log("so does this")
+        getAuth().then((data) => {
+          console.log(data)
+          if (data != "no"){
+          updateAuth(data.user, data.token, data.type)
+          }
+          else{
+            setIsLoading(false);
+          }
+      })
+    }
+}, [])
 
-
-  if (isLoading) {
-    return (
-      <PaperProvider theme={theme}>
-        <Splash />
-      </PaperProvider>
-    )
-  }
 
 
   return (
     <AuthContext.Provider value={authContext}>
       <PaperProvider theme={theme}>
         <StatusBar hidden={true} />
-        <Navigation />
+        <Navigation jwt={jwt} userToken={userToken} loading={isLoading}/>
       </PaperProvider>
     </AuthContext.Provider>
   );

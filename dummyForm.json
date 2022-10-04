@@ -1,0 +1,75 @@
+{
+    "formName": "EWI Inspection Report",
+    "formBrand": "EWIPRO",
+    "formSections": {
+        "formHeader": {
+            "rows": [{
+                    "cols": [{
+                            "elements": [{
+                                "type": "label",
+                                "value": "Client:"
+                            }]
+                        },
+                        {
+                            "elements": [{
+                                    "type": "label",
+                                    "value": "Investigation No:"
+                                },
+                                {
+                                    "type": "label",
+                                    "value": "GC/EWIPRO"
+                                },
+                                {
+                                    "type": "linebreak",
+                                    "value": ""
+                                },
+                                {
+                                    "type": "label",
+                                    "value": "Inspection Date:"
+                                },
+                                {
+                                    "type": "dateInput",
+                                    "value": ""
+                                },
+                                {
+                                    "type": "linebreak",
+                                    "value": ""
+                                },
+                                {
+                                    "type": "label",
+                                    "value": "Address inspected:"
+                                },
+                                {
+                                    "type": "label",
+                                    "value": "$PROJECT_ADDRESS$"
+                                },
+                                {
+                                    "type": "linebreak",
+                                    "value": ""
+                                },
+                                {
+                                    "type": "linebreak",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "cols": [{
+                        "elements": [{
+                            "type": "textareaInput",
+                            "value": ""
+                        }]
+                    }]
+                }
+            ]
+        },
+        "formContent": {
+
+        },
+        "formFooter": {
+
+        }
+    }
+}

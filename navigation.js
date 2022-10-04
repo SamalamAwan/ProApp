@@ -1,6 +1,6 @@
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigationState, useRoute } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createDrawerNavigator, DrawerItem } from '@react-navigation/drawer';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
 import { StatusBar, View, Image, ImageBackground, KeyboardAvoidingView, TouchableOpacity } from 'react-native';
@@ -10,15 +10,21 @@ import { AuthContext } from './context';
 import { IconButton, useTheme, Text, Avatar, Modal, Portal, TextInput, Button, ActivityIndicator } from 'react-native-paper'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Dimensions, AppState } from 'react-native';
-import { SiteInspection } from './screens/SiteInspection';
+import { FindProjects, SiteInspection } from './screens/FindProject';
 import { PullOut } from './screens/PullOut';
 import { SiteVisit } from './screens/SiteVisit';
 import { HomeScreen } from './screens/Home';
 import { SignIn } from './screens/SignIn';
 import * as Device from 'expo-device';
 import { Splash } from './screens/splash';
-
+import {
+    DrawerContentScrollView,
+    DrawerItemList,
+  } from '@react-navigation/drawer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ProjectDetails } from './screens/ProjectDetails';
+import { CreateForm } from './screens/CreateForm';
+
 
 
 const windowWidth = Dimensions.get('window').width;
@@ -36,41 +42,14 @@ export default function Navigation(props) {
 
 
 const RootStack = createNativeStackNavigator();
-function RootNavigator() {
+function RootNavigator(props) {
 
     const [isLoading, setIsLoading] = React.useState(true);
-    const { Profile } = React.useContext(AuthContext)
-    const { updateAuthGlobal } = React.useContext(AuthContext);
-
-    const getAuth = async () => {
-        try {
-            const authToken = await AsyncStorage.getItem('@auth_token')
-            const username = await AsyncStorage.getItem('@username')
-            if (authToken !== null && username !== null) {
-                return ([username, authToken])
-            }
-            setIsLoading(false)
-        } catch (e) {
-            alert(e)
-        }
-    }
-
-
-    React.useEffect(() => {
-        console.log("hello this happens")
-        if (isLoading) {
-            console.log("so does this")
-            getAuth().then((data) => {
-                console.log(data[0], data[1])
-                updateAuthGlobal(data[0].toString(), data[1].toString(), Profile.userType)
-                setIsLoading(false)
-            })
-        }
-    }, [])
+    
 
     return (
         <RootStack.Navigator headerMode={false}>
-            {(isLoading) ? (
+            {(props.props.loading == true && !props.props.userToken && !props.props.jwt) ? (
                 <RootStack.Screen
                     name="Splash"
                     component={Splash}
@@ -80,7 +59,7 @@ function RootNavigator() {
                     }}
                 />
             ) :
-                (Profile.userToken && Profile.jwt) ? (
+                (props.props.userToken && props.props.jwt) ? (
                     <RootStack.Screen
                         name="App"
                         component={DrawerStackScreen}
@@ -117,13 +96,35 @@ const AuthStackScreen = () => (
 );
 
 const DrawerStack = createDrawerNavigator();
-const DrawerStackScreen = () => (
-    <DrawerStack.Navigator initialRouteName="Home">
-        <DrawerStack.Screen name="Home" component={HomeStackScreen} options={{ headerShown: true }} />
-        <DrawerStack.Screen name="Forms" component={FormsTabs} options={{ headerShown: true }} />
+const DrawerStackScreen = () => 
+    {
+        const {signOutGlobal, Profile} = React.useContext(AuthContext)
+
+        return (
+    <DrawerStack.Navigator initialRouteName="Home" drawerContent={props => {
+        return (
+          <DrawerContentScrollView {...props}>
+            <DrawerItemList {...props} />
+            <DrawerItem label="Log Out" onPress={() => signOutGlobal()}/>
+          </DrawerContentScrollView>
+        )
+      }}
+      screenOptions={{
+        headerStyle: {
+            backgroundColor: '#263C19',
+          },
+          headerTintColor: '#fff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+          },
+          headerRight: () => <Image resizeMethod='resize' resizeMode='contain' style={{height:30, width:150, marginRight:10}} source={require("./assets/logowhite.png")}/>,
+          }}    
+      >
+        <DrawerStack.Screen name="Home" component={HomeStackScreen}/>
         <DrawerStack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: true }} />
     </DrawerStack.Navigator>
-);
+    
+)};
 
 function SettingsScreen() {
     return (
@@ -133,25 +134,58 @@ function SettingsScreen() {
     );
 }
 
-const FormsTabsNav = createBottomTabNavigator();
+const HomeStack = createBottomTabNavigator();
 
-const FormsTabs = () => {
+const HomeStackScreen = () => {
+    const {colors} = useTheme();
     return (
-        <FormsTabsNav.Navigator>
-            <FormsTabsNav.Screen name="Site Inspection" component={SiteInspection} options={{ headerShown: false }} />
-            <FormsTabsNav.Screen name="Pull Out Test" component={PullOut} options={{ headerShown: false }} />
-            <FormsTabsNav.Screen name="Site Visit" component={SiteVisit} options={{ headerShown: false }} />
-        </FormsTabsNav.Navigator>
+        <HomeStack.Navigator screenOptions={({ route }) => ({
+            tabBarIcon: ({ focused, color, size }) => {
+              let iconName;
+              if (route.name === 'Dashboard') {
+                iconName = focused
+                  ? 'account'
+                  : 'account-outline';
+              } else if (route.name === 'Projects') {
+                iconName = focused ? 'briefcase' : 'briefcase-outline';
+              } else if (route.name === 'Pull Out Test') {
+                iconName = focused ? 'arrow-down-bold-circle' : 'arrow-down-bold-circle-outline';
+              } else if (route.name === 'Site Visit') {
+                iconName = focused ? 'briefcase' : 'briefcase-outline';
+              }
+              
+  
+              // You can return any component that you like here!
+              return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
+            },
+            tabBarActiveTintColor: colors.primary,
+            tabBarInactiveTintColor: 'gray',
+            tabBarItemStyle:{marginBottom:5},
+          })}
+        >
+             <HomeStack.Screen name="Dashboard" component={HomeScreen} options={{ headerShown: false, }} />
+            <HomeStack.Screen name="Projects" component={FindProjectsStackScreen} options={{ headerShown: false }} />
+        </HomeStack.Navigator>
     );
 }
 
-
-const HomeStack = createNativeStackNavigator();
-const HomeStackScreen = () => {
-    const { header } = useTheme();
-    return (
-        <HomeStack.Navigator initialRouteName="Dashboard" >
-            <HomeStack.Screen name="Dashboard" component={HomeScreen} options={{ headerShown: false, }} />
-        </HomeStack.Navigator>
-    )
-};
+const FindProjectsStack = createNativeStackNavigator();
+const FindProjectsStackScreen = () => (
+    <FindProjectsStack.Navigator>
+        <FindProjectsStack.Screen
+            name="Find Projects"
+            component={FindProjects}
+            options={{ headerShown: false }}
+        />
+                <FindProjectsStack.Screen
+            name="Project Details"
+            component={ProjectDetails}
+            options={{ headerShown: true }}
+        />
+                        <FindProjectsStack.Screen
+            name="Create Form"
+            component={CreateForm}
+            options={({ route }) => ({ headerShown: true, headerTitle:route.params.props.title})}
+        />
+    </FindProjectsStack.Navigator>
+);

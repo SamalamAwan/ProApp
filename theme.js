@@ -4,13 +4,14 @@ import { Dimensions, Image } from 'react-native';
 
 const headerHeight = 113;
 const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 //console.log(test)
 export const lightTheme = {
     ...DefaultTheme,
     colors: {
         ...DefaultTheme.colors,
         primary: '#4c7931',
-        darkenedPrimary: '#4d7932',
+        darkenedPrimary: '#263C19',
         lightenedPrimary: '#93bb59',
         accent: '#ffba00',
         white: '#ffffff',
@@ -54,6 +55,7 @@ export const lightTheme = {
         justifyContent: 'center',
         marginTop: headerHeight,
         minWidth: windowWidth,
+        minHeight: windowHeight
     },
     containerNoTopMargin: {
         flex: 1,
@@ -78,6 +80,12 @@ export const lightTheme = {
         justifyContent: 'flex-start',
         marginTop: headerHeight,
         minWidth: windowWidth,
+    },
+    containerSpaceBetween: {
+        flex: 1,
+        backgroundColor: '#F0F0F0',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
     },
     homeShortcut: {
         Surface: {

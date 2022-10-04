@@ -9,10 +9,10 @@ import Constants from 'expo-constants';
 import * as Device from 'expo-device';
 
 export const SignIn = () => {
-  const { signIn, updateAuthGlobal, setRelog } = React.useContext(AuthContext);
+  const { signInGlobal, updateAuthGlobal, setRelog } = React.useContext(AuthContext);
   const [userName, setUserName] = useState('');
   const [password, setPassword] = useState('');
-  const [userType, setuserType] = useState('');
+  const [userType, setuserType] = useState('5');
   const [QR, setQR] = useState('');
   const {colors} = useTheme();
 
@@ -62,13 +62,12 @@ export const SignIn = () => {
         else return response.json();
       })
       .then((responseData) => {
-        console.log(responseData)
-        signIn(responseData.auth_key, responseData.jwt, responseData.token.data.user_type, responseData.username, responseData.namesurname, responseData.user_id, responseData.token.data.administrator,responseData.token.data.supervisor, responseData.token.data.manager, responseData.token.data.user_class_name);
+        signInGlobal(responseData);
       })
       .catch((error) => {
         alert("Unable to log in - " + error.toString());
       });
-  },[Profile.deviceId, password, setRelog, signIn, userName, userType])
+  },[Profile.deviceId, password, setRelog, signInGlobal, userName, userType])
 
   return (
     <ScreenContainer nomargin={true}>
@@ -115,9 +114,6 @@ export const SignIn = () => {
               value={password}/>
                     <Button mode="contained" style={styles.logInButton} labelStyle={{color:colors.white, textAlignVertical:"center"}} onPress={() => getAuth()}>LOGIN</Button>
             </View>}
-          {isLoading &&
-            <ActivityIndicator animating={true} size="large" />
-          }
 </ImageBackground>
     </ScreenContainer>
   );
