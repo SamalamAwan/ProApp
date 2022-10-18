@@ -99,10 +99,10 @@ export default function App() {
 }
 
 const signIn = (data) => {
-  console.log(data)
+  //console.log(data)
 const token = data.jwt;
 var decoded = jwt_decode(token);
-console.log(decoded)
+//console.log(decoded)
 setUserToken(data.auth_key);
  setUserType(decoded.data.user_type)
 setJwt(token);
@@ -122,7 +122,7 @@ const deleteAuth = async () => {
     // remove error
   }
 
-  console.log('Done.')
+  //console.log('Done.')
 }
 
 const signOut = () =>{
@@ -212,7 +212,7 @@ const signOut = () =>{
     if (isLoading) {
         //console.log("so does this")
         getAuth().then((data) => {
-          console.log(data)
+          //console.log(data)
           if (data != "no"){
           updateAuth(data.user, data.token, data.type)
           }

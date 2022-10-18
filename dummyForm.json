@@ -4,69 +4,131 @@
     "formSections": {
         "formHeader": {
             "rows": [{
-                    "cols": [{
-                            "elements": [{
-                                "type": "label",
-                                "value": "Client:"
-                            }]
-                        },
-                        {
-                            "elements": [{
+                    "cols": {
+                        "styles": "TEST",
+                        "items": [{
+                                "elements": [{
                                     "type": "label",
-                                    "value": "Investigation No:"
-                                },
-                                {
-                                    "type": "label",
-                                    "value": "GC/EWIPRO"
-                                },
-                                {
-                                    "type": "linebreak",
-                                    "value": ""
-                                },
-                                {
-                                    "type": "label",
-                                    "value": "Inspection Date:"
-                                },
-                                {
-                                    "type": "dateInput",
-                                    "value": ""
-                                },
-                                {
-                                    "type": "linebreak",
-                                    "value": ""
-                                },
-                                {
-                                    "type": "label",
-                                    "value": "Address inspected:"
-                                },
-                                {
-                                    "type": "label",
-                                    "value": "$PROJECT_ADDRESS$"
-                                },
-                                {
-                                    "type": "linebreak",
-                                    "value": ""
-                                },
-                                {
-                                    "type": "linebreak",
-                                    "value": ""
-                                }
-                            ]
-                        }
-                    ]
+                                    "value": "Client:"
+                                }]
+                            },
+                            {
+                                "elements": [{
+                                        "type": "label",
+                                        "value": "Investigation No:"
+                                    },
+                                    {
+                                        "type": "label",
+                                        "value": "GC/EWIPRO"
+                                    },
+                                    {
+                                        "type": "linebreak",
+                                        "value": ""
+                                    },
+                                    {
+                                        "type": "label",
+                                        "value": "Inspection Date:"
+                                    },
+                                    {
+                                        "type": "dateInput",
+                                        "value": ""
+                                    },
+                                    {
+                                        "type": "linebreak",
+                                        "value": ""
+                                    },
+                                    {
+                                        "type": "label",
+                                        "value": "Address inspected:"
+                                    },
+                                    {
+                                        "type": "label",
+                                        "value": "$PROJECT_ADDRESS$"
+                                    },
+                                    {
+                                        "type": "linebreak",
+                                        "value": ""
+                                    },
+                                    {
+                                        "type": "linebreak",
+                                        "value": ""
+                                    }
+                                ]
+                            }
+                        ]
+                    }
                 },
                 {
-                    "cols": [{
-                        "elements": [{
-                            "type": "textareaInput",
-                            "value": ""
+                    "cols": {
+                        "styles": "",
+                        "items": [{
+                            "elements": [{
+                                "type": "textareaInput",
+                                "value": ""
+                            }]
                         }]
-                    }]
+                    }
                 }
             ]
         },
         "formContent": {
-
+            "rows": [{
+                "cols": {
+                    "styles": "",
+                    "items": [{
+                        "elements": [{
+                            "type": "list",
+                            "headerTitle": "List header title",
+                            "value": {
+                                "listItems": [{
+                                        "title": "Example of 1st question",
+                                        "submits": [{
+                                                "type": "textInput",
+                                                "value": ""
+                                            },
+                                            {
+                                                "type": "photoInput",
+                                                "value": "",
+                                                "uri": "",
+                                                "name": ""
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Example of 2nd question",
+                                        "submits": [{
+                                                "type": "textInput",
+                                                "value": ""
+                                            },
+                                            {
+                                                "type": "photoInput",
+                                                "value": "",
+                                                "uri": "",
+                                                "name": ""
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "title": "Example of 3rd question",
+                                        "submits": [{
+                                                "type": "selectInput",
+                                                "value": "",
+                                                "options": ["option 1", "option 2", "option 3"]
+                                            },
+                                            {
+                                                "type": "photoInput",
+                                                "value": "",
+                                                "uri": "",
+                                                "name": ""
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        }]
+                    }]
+                }
+            }]
         },
         "formFooter": {
 

@@ -20,7 +20,7 @@ import { Splash } from './screens/splash';
 import {
     DrawerContentScrollView,
     DrawerItemList,
-  } from '@react-navigation/drawer';
+} from '@react-navigation/drawer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ProjectDetails } from './screens/ProjectDetails';
 import { CreateForm } from './screens/CreateForm';
@@ -45,7 +45,7 @@ const RootStack = createNativeStackNavigator();
 function RootNavigator(props) {
 
     const [isLoading, setIsLoading] = React.useState(true);
-    
+
 
     return (
         <RootStack.Navigator headerMode={false}>
@@ -96,35 +96,35 @@ const AuthStackScreen = () => (
 );
 
 const DrawerStack = createDrawerNavigator();
-const DrawerStackScreen = () => 
-    {
-        const {signOutGlobal, Profile} = React.useContext(AuthContext)
+const DrawerStackScreen = () => {
+    const { signOutGlobal, Profile } = React.useContext(AuthContext)
 
-        return (
-    <DrawerStack.Navigator initialRouteName="Home" drawerContent={props => {
-        return (
-          <DrawerContentScrollView {...props}>
-            <DrawerItemList {...props} />
-            <DrawerItem label="Log Out" onPress={() => signOutGlobal()}/>
-          </DrawerContentScrollView>
-        )
-      }}
-      screenOptions={{
-        headerStyle: {
-            backgroundColor: '#263C19',
-          },
-          headerTintColor: '#fff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-          },
-          headerRight: () => <Image resizeMethod='resize' resizeMode='contain' style={{height:30, width:150, marginRight:10}} source={require("./assets/logowhite.png")}/>,
-          }}    
-      >
-        <DrawerStack.Screen name="Home" component={HomeStackScreen}/>
-        <DrawerStack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: true }} />
-    </DrawerStack.Navigator>
-    
-)};
+    return (
+        <DrawerStack.Navigator initialRouteName="Home" drawerContent={props => {
+            return (
+                <DrawerContentScrollView {...props}>
+                    <DrawerItemList {...props} />
+                    <DrawerItem label="Log Out" onPress={() => signOutGlobal()} />
+                </DrawerContentScrollView>
+            )
+        }}
+            screenOptions={{
+                headerStyle: {
+                    backgroundColor: '#263C19',
+                },
+                headerTintColor: '#fff',
+                headerTitleStyle: {
+                    fontWeight: 'bold',
+                },
+                headerRight: () => <Image resizeMethod='resize' resizeMode='contain' style={{ height: 30, width: 150, marginRight: 10 }} source={require("./assets/logowhite.png")} />,
+            }}
+        >
+            <DrawerStack.Screen name="Home" component={HomeStackScreen} />
+            <DrawerStack.Screen name="Settings" component={SettingsScreen} options={{ headerShown: true }} />
+        </DrawerStack.Navigator>
+
+    )
+};
 
 function SettingsScreen() {
     return (
@@ -137,34 +137,57 @@ function SettingsScreen() {
 const HomeStack = createBottomTabNavigator();
 
 const HomeStackScreen = () => {
-    const {colors} = useTheme();
+    const { colors } = useTheme();
+    const { Profile } = React.useContext(AuthContext);
+
+    //console.log(Profile)
+
     return (
         <HomeStack.Navigator screenOptions={({ route }) => ({
             tabBarIcon: ({ focused, color, size }) => {
-              let iconName;
-              if (route.name === 'Dashboard') {
-                iconName = focused
-                  ? 'account'
-                  : 'account-outline';
-              } else if (route.name === 'Projects') {
-                iconName = focused ? 'briefcase' : 'briefcase-outline';
-              } else if (route.name === 'Pull Out Test') {
-                iconName = focused ? 'arrow-down-bold-circle' : 'arrow-down-bold-circle-outline';
-              } else if (route.name === 'Site Visit') {
-                iconName = focused ? 'briefcase' : 'briefcase-outline';
-              }
-              
-  
-              // You can return any component that you like here!
-              return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
+                let iconName;
+                switch (route.name) {
+                    case 'Dashboard':
+                        iconName = focused
+                            ? 'account'
+                            : 'account-outline';
+                        break;
+                    case 'Projects':
+                        iconName = focused
+                            ? 'briefcase'
+                            : 'briefcase-outline';
+                        break;
+                    case 'Pull Out Test':
+                        iconName = focused
+                            ? 'arrow-down-bold-circle'
+                            : 'arrow-down-bold-circle-outline';
+                        break;
+                    case 'Site Visit':
+                        iconName = focused
+                            ? 'briefcase'
+                            : 'briefcase-outline';
+                        break;
+                    default:
+                        iconName = focused
+                            ? 'alpha'
+                            : 'alpha-a-box-outline';
+                }
+
+                // You can return any component that you like here!
+                return <MaterialCommunityIcons name={iconName} size={size} color={color} />;
             },
             tabBarActiveTintColor: colors.primary,
             tabBarInactiveTintColor: 'gray',
-            tabBarItemStyle:{marginBottom:5},
-          })}
+            tabBarItemStyle: { marginBottom: 5 },
+        })}
         >
-             <HomeStack.Screen name="Dashboard" component={HomeScreen} options={{ headerShown: false, }} />
-            <HomeStack.Screen name="Projects" component={FindProjectsStackScreen} options={{ headerShown: false }} />
+            <HomeStack.Screen name="Dashboard" component={HomeScreen} options={{ headerShown: false, }} />
+            {Profile.userClassName == "User" &&
+                <HomeStack.Screen name="Projects" component={FindProjectsStackScreen} options={{ headerShown: false }} />
+            }
+            {Profile.userClassName == "Packer" &&
+                <HomeStack.Screen name="PACKER" component={FindProjectsStackScreen} options={{ headerShown: false }} />
+            }
         </HomeStack.Navigator>
     );
 }
@@ -177,15 +200,15 @@ const FindProjectsStackScreen = () => (
             component={FindProjects}
             options={{ headerShown: false }}
         />
-                <FindProjectsStack.Screen
+        <FindProjectsStack.Screen
             name="Project Details"
             component={ProjectDetails}
             options={{ headerShown: true }}
         />
-                        <FindProjectsStack.Screen
+        <FindProjectsStack.Screen
             name="Create Form"
             component={CreateForm}
-            options={({ route }) => ({ headerShown: true, headerTitle:route.params.props.title})}
+            options={({ route }) => ({ headerShown: true, headerTitle: route.params.props.title })}
         />
     </FindProjectsStack.Navigator>
 );

@@ -19,7 +19,7 @@ export const HomeScreen = ({ navigation }) => {
     var imageUrl = "https://veen-e.ewipro.com:7443/images/employees/"+userName.toLocaleLowerCase()+".jpg"
     setUserPicture(imageUrl)
   }
-  console.log(Profile)
+  //console.log(Profile)
   },[Profile])
 
 

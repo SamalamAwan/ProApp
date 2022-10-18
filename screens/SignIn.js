@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { View, TouchableOpacity, Text, Image, ImageBackground, KeyboardAvoidingView } from "react-native";
+import { View, TouchableOpacity, Text, Image, ImageBackground, KeyboardAvoidingView, StyleSheet } from "react-native";
 import { AuthContext } from "../context";
 import { useTheme, TextInput, Button, IconButton, Portal, Modal, Subheading, ActivityIndicator } from 'react-native-paper';
 import { ScreenContainer } from "../ScreenContainer";
@@ -7,6 +7,51 @@ import styles from '../styles'
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
+import { BarCodeScanner } from 'expo-barcode-scanner';
+
+const QRScanner = ({visible, dismiss}) => {
+
+  const {updateAuthGlobal} = React.useContext(AuthContext)
+  const [hasPermission, setHasPermission] = useState(null);
+  const [scanned, setScanned] = useState(false);
+  const containerStyle = { backgroundColor: 'white', padding: 0, margin: 10, display:"flex", height:300};
+  React.useEffect(() => {
+    const getBarCodeScannerPermissions = async () => {
+      const { status } = await BarCodeScanner.requestPermissionsAsync();
+      setHasPermission(status === 'granted');
+    };
+
+    getBarCodeScannerPermissions();
+  }, []);
+
+  const handleBarCodeScanned = ({ type, data }) => {
+    setScanned(true);
+    let data2 = (data.split("-"))
+    updateAuthGlobal(data2[2],data2[0],data2[1])
+    dismiss();
+  };
+
+  if (hasPermission === null) {
+    return <Text>Requesting for camera permission</Text>;
+  }
+  if (hasPermission === false) {
+    return <Text>No access to camera</Text>;
+  }
+
+  return (
+    <Portal>
+    <Modal visible={visible} onDismiss={dismiss} contentContainerStyle={containerStyle}>
+      <BarCodeScanner
+        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+        style={StyleSheet.absoluteFillObject}
+        barCodeTypes={[BarCodeScanner.Constants.BarCodeType.qr]}
+      />
+      {scanned && <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />}
+      </Modal>
+      </Portal>
+  );
+}
+
 
 export const SignIn = () => {
   const { signInGlobal, updateAuthGlobal, setRelog } = React.useContext(AuthContext);
@@ -17,6 +62,7 @@ export const SignIn = () => {
   const {colors} = useTheme();
 
   const [devSignInHit, setDevSignIn] = useState(false)
+  const [QRSignInHit, setQRSignInHit] = useState(false)
 
   const [visible, setVisible] = React.useState(false);
 
@@ -26,11 +72,11 @@ export const SignIn = () => {
   const hideModal = () => setVisible(false);
   const containerStyle = { backgroundColor: 'white', padding: 5, margin: 10, display:"flex", height:300};
   const {Profile} = React.useContext(AuthContext)
-
+  const hideQR = () => setQRSignInHit(false);
 
   const devSignIn = React.useCallback(() => {
     setUserName("sawan")
-    setPassword("Sa2022??")
+    setPassword("Sa2022!!")
     setDevSignIn(true)
   },[])
 
@@ -69,6 +115,12 @@ export const SignIn = () => {
       });
   },[Profile.deviceId, password, setRelog, signInGlobal, userName, userType])
 
+
+  const startScan = () => {
+    setQRSignInHit(true)
+  }
+
+
   return (
     <ScreenContainer nomargin={true}>
       <ImageBackground source={require('../assets/loginBG.png')} style={styles.BGimage}>
@@ -89,6 +141,14 @@ export const SignIn = () => {
         onPress={() => devSignIn()}
       />
     }
+          <IconButton
+        icon="barcode-scan"
+        style={{ position: "absolute", top: 0, margin: 20, right:100, padding:0, width:50, height:50 }}
+        containerColor={colors.primary}
+        iconColor={colors.white}
+        size={30}
+        onPress={() => startScan()}
+      />
       <Image
            style={styles.SignInLogo}
            source={require('../assets/prologo.png')}
@@ -114,6 +174,7 @@ export const SignIn = () => {
               value={password}/>
                     <Button mode="contained" style={styles.logInButton} labelStyle={{color:colors.white, textAlignVertical:"center"}} onPress={() => getAuth()}>LOGIN</Button>
             </View>}
+            <QRScanner visible={QRSignInHit} dismiss={hideQR}/>
 </ImageBackground>
     </ScreenContainer>
   );
