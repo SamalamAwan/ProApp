@@ -2,11 +2,11 @@ import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
-import { Provider as PaperProvider, Dialog, Paragraph, Button, Portal } from 'react-native-paper';
+import { Provider as PaperProvider } from 'react-native-paper';
 import Navigation from './navigation';
 import { Splash } from './screens/splash'
 import { AuthContext } from "./context";
-import { lightTheme, darkTheme } from './theme'
+import {lightTheme, darkTheme} from "./theme"
 import { ScreenContainer } from './ScreenContainer'
 import * as Device from 'expo-device';
 import AsyncStorage from '@react-native-async-storage/async-storage';
