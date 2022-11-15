@@ -27,7 +27,7 @@ export const HomeScreen = ({ navigation }) => {
 
   return (
     <ScreenContainer stretch>
-      <Card  style={{backgroundColor:"#4c7931", margin:10,borderRadius:10}}>
+      <Card style={{backgroundColor:"#4c7931", margin:10,borderRadius:10}}>
     <Card.Content style={{display:"flex", flexDirection:"row"}}>
 
     <View style={{flex:1,justifyContent:"flex-end", alignItems:"flex-end", marginHorizontal:10}}>

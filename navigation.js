@@ -24,6 +24,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ProjectDetails } from './screens/ProjectDetails';
 import { CreateForm } from './screens/CreateForm';
+import { MakeCardScreen } from './screens/MakeCard';
 
 
 
@@ -140,7 +141,7 @@ const HomeStackScreen = () => {
     const { colors } = useTheme();
     const { Profile } = React.useContext(AuthContext);
 
-    //console.log(Profile)
+    console.log(Profile)
 
     return (
         <HomeStack.Navigator screenOptions={({ route }) => ({
@@ -167,6 +168,11 @@ const HomeStackScreen = () => {
                             ? 'briefcase'
                             : 'briefcase-outline';
                         break;
+                        case 'Make Cards':
+                            iconName = focused
+                                ? 'card-account-details'
+                                : 'card-account-details-outline';
+                            break;
                     default:
                         iconName = focused
                             ? 'alpha'
@@ -186,7 +192,10 @@ const HomeStackScreen = () => {
                 <HomeStack.Screen name="Projects" component={FindProjectsStackScreen} options={{ headerShown: false }} />
             }
             {Profile.userClassName == "Packer" &&
-                <HomeStack.Screen name="PACKER" component={FindProjectsStackScreen} options={{ headerShown: false }} />
+                <HomeStack.Screen name="Packer" component={FindProjectsStackScreen} options={{ headerShown: false }} />
+            }
+            {Profile.id == "154" &&
+                <HomeStack.Screen name="Make Cards" component={MakeCardScreen} options={{ headerShown: false }} />
             }
         </HomeStack.Navigator>
     );

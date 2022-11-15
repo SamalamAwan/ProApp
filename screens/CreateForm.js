@@ -1,12 +1,13 @@
 import React, { useContext } from "react";
 import { ScreenContainer } from '../ScreenContainer'
-import { Button, Card, Searchbar, Subheading, Text, TextInput, Title, List, IconButton } from 'react-native-paper'
+import { Button, Card, Searchbar, Subheading, Text, TextInput, Title, List, IconButton, Switch } from 'react-native-paper'
 import { AuthContext } from "../context";
 import { apiKey } from "../context";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
 import { KeyboardAvoidingView, View } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import * as dummyJSON from "../dummyForm.json"
+import * as SiteInspectionForm from "../siteInspectionForm.json";
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 
@@ -15,7 +16,7 @@ const ListItem = ({ item }) => {
 
   React.useEffect(() => {
     const listItems = item.submits;
-    console.log("listItem", listItems)
+    //console.log("listItem", listItems)
     if (listItems) {
       let listItemObjs = Object.keys(listItems).map(key => (
         <View key={key} style={{flex:(listItems[key].type == "textInput" || listItems[key].type == "selectInput" ? 4 : 1), borderWidth:1, padding:0, marginHorizontal:2}}>
@@ -124,12 +125,17 @@ const CustomList = ({ header, values }) => {
 const Element = ({ element }) => {
 
   React.useEffect(() => {
-    console.log("elementtyyy", element)
+    //console.log("elementtyyy", element)
   }, [element])
 
   if (element.type == "label") {
     return (
       <Text>{element.value}</Text>
+    )
+  }
+  if (element.type == "title") {
+    return (
+      <Text style={{fontWeight:"bold", fontSize:25}}>{element.value}</Text>
     )
   }
   if (element.type == "linebreak") {
@@ -141,7 +147,7 @@ const Element = ({ element }) => {
     const [text, setText] = React.useState(element.value)
     return (
       <TextInput
-        label="TextArea"
+        label={element.label ? element.label : "No Label"}
         multiline={true}
         mode="outlined"
         dense={true}
@@ -227,6 +233,53 @@ const Element = ({ element }) => {
   }
   if (element.type == "photoInput") {
     const [name, setName] = React.useState(element.name)
+    console.log(element)
+    if (element.conditional == true){
+      const [reqsComment, setReqsComment] = React.useState(false);
+      const [comment, setComment] = React.useState(element.comment)
+      const onToggleComment = () => setReqsComment(!reqsComment);
+      return (
+        <Card style={{backgroundColor:"#fdfdfd", borderRadius:10, marginBottom:10}}>
+        <Card.Content style={{display:"flex", flexDirection:"column"}}>
+        <View style={{display:"flex", flexDirection:"row"}}>
+        <View style={{flex:3,justifyContent:"center", alignItems:"flex-start"}}>
+        <Text style={{fontWeight:"bold", fontSize:18}}>{element.label}</Text>
+        </View>
+        <View style={{flex:2,justifyContent:"flex-end", alignItems:"flex-end"}}>
+          <IconButton color="black"
+            icon={"camera-plus"}
+            animated={true}
+            containerColor={"#333"}
+            iconColor={"white"}
+            size={15}
+            onPress={() => console.log("hello")}
+            style={{
+              right:0, top:0, margin:(0,0,0,0), padding:(0,0,0,0), borderRadius:0,maxHeight:30, flex:1, flexShrink:1, height:10, borderWidth:1
+            }}
+          />
+        </View>
+        <View style={{flex:1,justifyContent:"center", alignItems:"flex-end"}}>
+          <Text>Comment</Text>
+        <Switch color="red" value={reqsComment} onValueChange={onToggleComment} />
+        </View>
+        </View>
+        <View style={{display:"flex", flexDirection:"row"}}>
+        {reqsComment &&  <TextInput
+        label={"Comment"}
+        multiline={true}
+        mode="outlined"
+        dense={true}
+        value={comment}
+        onChangeText={text => setComment(text)}
+        style={{marginTop:10, fontSize: 10, flex:1}}
+      />}
+      </View>
+        </Card.Content>
+      </Card>
+
+      )
+    }
+    else{
     return (
       <IconButton color="black"
             icon={"camera-plus"}
@@ -239,17 +292,8 @@ const Element = ({ element }) => {
               right:0, top:0, margin:(0,0,0,0), padding:(0,0,0,0), borderRadius:0, minHeight:"100%", flex:1, flexShrink:1, height:10, borderWidth:1
             }}
           />
-      // <Button
-      //   style={{borderRadius:0,width:10,maxWidth:"100%"}}
-      //   contentStyle={{maxWidth:"100%"}}
-      //   icon={"camera"}
-      //   labelStyle={{width:0, height:0}}
-      //   mode={"contained"}
-      //   onPress={() => console.log("hello")}
-      // >
-      //   {name != "" ? name : "photo"}
-      // </Button>
     )
+          }
   }
   if (element.type == "selectInput") {
     const [selectedLanguage, setSelectedLanguage] = React.useState(element.value);
@@ -318,8 +362,7 @@ const Row = ({ row }) => {
 }
 
 export const CreateForm = ({ navigation, route }) => {
-
-  const [form, setForm] = React.useState(dummyJSON.default)
+  const [form, setForm] = React.useState(route.params.props.title == "Site Inspection" ? SiteInspectionForm.default : dummyJSON.default);
   const [header, setHeader] = React.useState(null)
   const [content, setContent] = React.useState(null)
   const [footer, setFooter] = React.useState(null);

@@ -1,33 +1,37 @@
 {
-    "expo": {
-        "name": "app",
-        "slug": "app",
-        "version": "1.0.0",
-        "orientation": "default",
-        "icon": "./assets/ic_launcher_round.png",
-        "userInterfaceStyle": "dark",
-        "splash": {
-            "image": "./assets/splash.png",
-            "resizeMode": "contain",
-            "backgroundColor": "#ffffff"
-        },
-        "updates": {
-            "fallbackToCacheTimeout": 0
-        },
-        "assetBundlePatterns": [
-            "**/*"
-        ],
-        "ios": {
-            "supportsTablet": true
-        },
-        "android": {
-            "adaptiveIcon": {
-                "foregroundImage": "./assets/ic_launcher_foreground.png",
-                "backgroundColor": "#367c2b"
-            }
-        },
-        "web": {
-            "favicon": "./assets/ic_launcher_round.png"
-        }
-    }
+  "expo": {
+    "name": "app",
+    "slug": "app",
+    "version": "1.0.0",
+    "orientation": "default",
+    "icon": "./assets/ic_launcher_round.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/ic_launcher_foreground.png",
+        "backgroundColor": "#367c2b"
+      },
+      "package": "com.ewipro.employees"
+    },
+    "web": {
+      "favicon": "./assets/ic_launcher_round.png"
+    },
+    "plugins": [
+      "with-rn-image-crop-picker"
+    ]
+  }
 }

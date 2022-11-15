@@ -25,9 +25,9 @@ export const ProjectDetails = ({ navigation, route }) => {
       </Card>
 
       <View style={{display:"flex", flexWrap:"wrap", flexDirection:"row", justifyContent:"center"}}>
-        <Button mode="contained" style={{borderRadius:1, marginHorizontal:10, marginBottom:5, flex:1, minWidth:"33%", maxWidth:"45%", padding:0}} labelStyle={{color:"white", width:"98%", flexWrap:"wrap"}} onPress={() => navigation.navigate("Create Form", {props:{title:"Site Inspection"}})}>Site Inspectionasgaehaa</Button>
-        <Button mode="contained" style={{borderRadius:1, marginHorizontal:10, marginBottom:5, flex:1, minWidth:"33%", maxWidth:"45%"}} labelStyle={{color:"white"}} onPress={() => console.log("pressed")}>Pull Out Test</Button>
-        <Button mode="contained" style={{borderRadius:1, marginHorizontal:10, marginBottom:5, flex:1, minWidth:"33%", maxWidth:"45%"}} labelStyle={{color:"white"}} onPress={() => console.log("pressed")}>Site Visit</Button>
+        <Button mode="contained" style={{borderRadius:1, marginHorizontal:10, marginBottom:5, flex:1, minWidth:"33%", maxWidth:"45%", padding:0}} labelStyle={{color:"white", width:"98%", flexWrap:"wrap"}} onPress={() => navigation.navigate("Create Form", {props:{title:"Site Inspection"}})}>Site Inspection</Button>
+        <Button mode="contained" style={{borderRadius:1, marginHorizontal:10, marginBottom:5, flex:1, minWidth:"33%", maxWidth:"45%"}} labelStyle={{color:"white"}} onPress={() => navigation.navigate("Create Form", {props:{title:"Pull Out Test"}})} >Pull Out Test</Button>
+        <Button mode="contained" style={{borderRadius:1, marginHorizontal:10, marginBottom:5, flex:1, minWidth:"33%", maxWidth:"45%"}} labelStyle={{color:"white"}} onPress={() => navigation.navigate("Create Form", {props:{title:"Site Visit"}})}>Site Visit</Button>
         <Button mode="contained" style={{borderRadius:1, marginHorizontal:10, marginBottom:5, flex:1, minWidth:"33%", maxWidth:"45%"}} labelStyle={{color:"white"}} onPress={() => console.log("pressed")}>Create Form</Button>
         <Button mode="contained" style={{borderRadius:1, marginHorizontal:10, marginBottom:5, flex:1, minWidth:"33%", maxWidth:"45%"}} labelStyle={{color:"white"}} onPress={() => console.log("pressed")}>Create Form</Button>
         <Button mode="contained" style={{borderRadius:1, marginHorizontal:10, marginBottom:5, flex:1, minWidth:"33%", maxWidth:"45%"}} labelStyle={{color:"white"}} onPress={() => console.log("pressed")}>Create Form</Button>

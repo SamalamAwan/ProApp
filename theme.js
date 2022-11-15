@@ -57,6 +57,15 @@ export const lightTheme = {
         minWidth: windowWidth,
         minHeight: windowHeight
     },
+    containerStretch: {
+        flex: 1,
+        backgroundColor: '#F0F0F0',
+        alignItems: 'stretch',
+        justifyContent: 'flex-start',
+        marginTop: 0,
+        minWidth: windowWidth,
+
+    },
     containerNoTopMargin: {
         flex: 1,
         backgroundColor: '#F0F0F0',
@@ -80,6 +89,14 @@ export const lightTheme = {
         justifyContent: 'flex-start',
         marginTop: headerHeight,
         minWidth: windowWidth,
+    },
+    containerFullHeight: {
+        flex: 1,
+        backgroundColor: '#F0F0F0',
+        alignItems: 'stretch',
+        justifyContent: 'center',
+        marginTop: headerHeight,
+        width: "100%",
     },
     containerSpaceBetween: {
         flex: 1,
@@ -198,7 +215,7 @@ export const darkTheme = {
     containerNoTopMargin: {
         flex: 1,
         backgroundColor: '#001728',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
         marginTop: 0,
         minWidth: windowWidth,
