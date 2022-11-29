@@ -25,6 +25,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ProjectDetails } from './screens/ProjectDetails';
 import { CreateForm } from './screens/CreateForm';
 import { MakeCardScreen } from './screens/MakeCard';
+import { CameraScreen } from './screens/Camera';
 
 
 
@@ -168,11 +169,11 @@ const HomeStackScreen = () => {
                             ? 'briefcase'
                             : 'briefcase-outline';
                         break;
-                        case 'Make Cards':
-                            iconName = focused
-                                ? 'card-account-details'
-                                : 'card-account-details-outline';
-                            break;
+                    case 'Make Cards':
+                        iconName = focused
+                            ? 'card-account-details'
+                            : 'card-account-details-outline';
+                        break;
                     default:
                         iconName = focused
                             ? 'alpha'
@@ -217,6 +218,11 @@ const FindProjectsStackScreen = () => (
         <FindProjectsStack.Screen
             name="Create Form"
             component={CreateForm}
+            options={({ route }) => ({ headerShown: true, headerTitle: route.params.props.title })}
+        />
+        <FindProjectsStack.Screen
+            name="Camera"
+            component={CameraScreen}
             options={({ route }) => ({ headerShown: true, headerTitle: route.params.props.title })}
         />
     </FindProjectsStack.Navigator>

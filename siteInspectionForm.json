@@ -78,174 +78,102 @@
                         "styles": "",
                         "items": [{
                             "elements": [{
-                                "type": "title",
-                                "value": "Front Elevation"
-                            }]
-                        }]
-                    }
-                },
-                {
-                    "cols": {
-                        "styles": "",
-                        "items": [{
-                            "elements": [{
-                                    "type": "photoInput",
-                                    "value": "Roof Condition",
-                                    "label": "Roof Condition",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Guttering and Downpipe",
-                                    "label": "Guttering and Downpipe",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Fascia & Soffit",
-                                    "label": "Fascia & Soffit",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Beads & Trims",
-                                    "label": "Beads & Trims",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "DPC",
-                                    "label": "DPC",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Windows",
-                                    "label": "Windows",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Doors",
-                                    "label": "Doors",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Finishing Coat",
-                                    "label": "Finishing Coat",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Sealants & Junctions",
-                                    "label": "Sealants & Junctions",
-                                    "conditional": true,
-                                    "comment": ""
-                                }
+                                "type": "list",
+                                "headerTitle": "Front Elevation",
+                                "value": {
+                                    "listItems": [{
+                                            "title": "Roof Condition",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Roof Condition",
+                                                "label": "Roof Condition",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Guttering and Downpipe",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Guttering and Downpipe",
+                                                "label": "Guttering and Downpipe",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Fascia & Soffit",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Fascia & Soffit",
+                                                "label": "Fascia & Soffit",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Beads & Trims",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Beads & Trims",
+                                                "label": "Beads & Trims",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "DPC",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "DPC",
+                                                "label": "DPC",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Windows",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Windows",
+                                                "label": "Windows",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Doors",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Doors",
+                                                "label": "Doors",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Finishing Coat",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Finishing Coat",
+                                                "label": "Finishing Coat",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Sealants & Junctions",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Sealants & Junctions",
+                                                "label": "Sealants & Junctions",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        }
 
-                            ]
-                        }]
-                    }
-                },
-                {
-                    "cols": {
-                        "styles": "",
-                        "items": [{
-                            "elements": [{
-                                "type": "title",
-                                "value": "Side Elevation Right"
-                            }]
-                        }]
-                    }
-                },
-                {
-                    "cols": {
-                        "styles": "",
-                        "items": [{
-                            "elements": [{
-                                    "type": "photoInput",
-                                    "value": "Roof Condition",
-                                    "label": "Roof Condition",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Guttering and Downpipe",
-                                    "label": "Guttering and Downpipe",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Fascia & Soffit",
-                                    "label": "Fascia & Soffit",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Beads & Trims",
-                                    "label": "Beads & Trims",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "DPC",
-                                    "label": "DPC",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Windows",
-                                    "label": "Windows",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Doors",
-                                    "label": "Doors",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Finishing Coat",
-                                    "label": "Finishing Coat",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Sealants & Junctions",
-                                    "label": "Sealants & Junctions",
-                                    "conditional": true,
-                                    "comment": ""
+                                    ]
                                 }
-
-                            ]
-                        }]
-                    }
-                },
-                {
-                    "cols": {
-                        "styles": "",
-                        "items": [{
-                            "elements": [{
-                                "type": "title",
-                                "value": "Side Elevation Left"
                             }]
                         }]
                     }
@@ -255,80 +183,102 @@
                         "styles": "",
                         "items": [{
                             "elements": [{
-                                    "type": "photoInput",
-                                    "value": "Roof Condition",
-                                    "label": "Roof Condition",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Guttering and Downpipe",
-                                    "label": "Guttering and Downpipe",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Fascia & Soffit",
-                                    "label": "Fascia & Soffit",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Beads & Trims",
-                                    "label": "Beads & Trims",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "DPC",
-                                    "label": "DPC",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Windows",
-                                    "label": "Windows",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Doors",
-                                    "label": "Doors",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Finishing Coat",
-                                    "label": "Finishing Coat",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Sealants & Junctions",
-                                    "label": "Sealants & Junctions",
-                                    "conditional": true,
-                                    "comment": ""
+                                "type": "list",
+                                "headerTitle": "Side Elevation Right",
+                                "value": {
+                                    "listItems": [{
+                                            "title": "Roof Condition",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Roof Condition",
+                                                "label": "Roof Condition",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Guttering and Downpipe",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Guttering and Downpipe",
+                                                "label": "Guttering and Downpipe",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Fascia & Soffit",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Fascia & Soffit",
+                                                "label": "Fascia & Soffit",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Beads & Trims",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Beads & Trims",
+                                                "label": "Beads & Trims",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "DPC",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "DPC",
+                                                "label": "DPC",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Windows",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Windows",
+                                                "label": "Windows",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Doors",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Doors",
+                                                "label": "Doors",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Finishing Coat",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Finishing Coat",
+                                                "label": "Finishing Coat",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Sealants & Junctions",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Sealants & Junctions",
+                                                "label": "Sealants & Junctions",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        }
+
+                                    ]
                                 }
-
-                            ]
-                        }]
-                    }
-                },
-                {
-                    "cols": {
-                        "styles": "",
-                        "items": [{
-                            "elements": [{
-                                "type": "title",
-                                "value": "Rear Elevation"
                             }]
                         }]
                     }
@@ -338,80 +288,102 @@
                         "styles": "",
                         "items": [{
                             "elements": [{
-                                    "type": "photoInput",
-                                    "value": "Roof Condition",
-                                    "label": "Roof Condition",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Guttering and Downpipe",
-                                    "label": "Guttering and Downpipe",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Fascia & Soffit",
-                                    "label": "Fascia & Soffit",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Beads & Trims",
-                                    "label": "Beads & Trims",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "DPC",
-                                    "label": "DPC",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Windows",
-                                    "label": "Windows",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Doors",
-                                    "label": "Doors",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Finishing Coat",
-                                    "label": "Finishing Coat",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Sealants & Junctions",
-                                    "label": "Sealants & Junctions",
-                                    "conditional": true,
-                                    "comment": ""
+                                "type": "list",
+                                "headerTitle": "Side Elevation Left",
+                                "value": {
+                                    "listItems": [{
+                                            "title": "Roof Condition",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Roof Condition",
+                                                "label": "Roof Condition",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Guttering and Downpipe",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Guttering and Downpipe",
+                                                "label": "Guttering and Downpipe",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Fascia & Soffit",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Fascia & Soffit",
+                                                "label": "Fascia & Soffit",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Beads & Trims",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Beads & Trims",
+                                                "label": "Beads & Trims",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "DPC",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "DPC",
+                                                "label": "DPC",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Windows",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Windows",
+                                                "label": "Windows",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Doors",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Doors",
+                                                "label": "Doors",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Finishing Coat",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Finishing Coat",
+                                                "label": "Finishing Coat",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Sealants & Junctions",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Sealants & Junctions",
+                                                "label": "Sealants & Junctions",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        }
+
+                                    ]
                                 }
-
-                            ]
-                        }]
-                    }
-                },
-                {
-                    "cols": {
-                        "styles": "",
-                        "items": [{
-                            "elements": [{
-                                "type": "title",
-                                "value": "Internal Inspection"
                             }]
                         }]
                     }
@@ -421,56 +393,212 @@
                         "styles": "",
                         "items": [{
                             "elements": [{
-                                    "type": "photoInput",
-                                    "value": "Combustion Ventilation",
-                                    "label": "Combustion Ventilation",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Mould/Condensation Issues",
-                                    "label": "Mould/Condensation Issues",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "photoInput",
-                                    "value": "Damp Issues",
-                                    "label": "Damp Issues",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "selectInput",
-                                    "value": "Heating Type",
-                                    "label": "Heating Type",
-                                    "conditional": true,
-                                    "comment": ""
-                                },
-                                {
-                                    "type": "textInput",
+                                "type": "list",
+                                "headerTitle": "Rear Elevation",
+                                "value": {
+                                    "listItems": [{
+                                            "title": "Roof Condition",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Roof Condition",
+                                                "label": "Roof Condition",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Guttering and Downpipe",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Guttering and Downpipe",
+                                                "label": "Guttering and Downpipe",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Fascia & Soffit",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Fascia & Soffit",
+                                                "label": "Fascia & Soffit",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Beads & Trims",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Beads & Trims",
+                                                "label": "Beads & Trims",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "DPC",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "DPC",
+                                                "label": "DPC",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Windows",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Windows",
+                                                "label": "Windows",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Doors",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Doors",
+                                                "label": "Doors",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Finishing Coat",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Finishing Coat",
+                                                "label": "Finishing Coat",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Sealants & Junctions",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Sealants & Junctions",
+                                                "label": "Sealants & Junctions",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        }
+
+                                    ]
+                                }
+                            }]
+                        }]
+                    }
+                }, {
+                    "cols": {
+                        "styles": "",
+                        "items": [{
+                            "elements": [{
+                                "type": "list",
+                                "headerTitle": "Internal Inspection",
+                                "value": {
+                                    "listItems": [{
+                                            "title": "Sealants & Junctions",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Combustion Ventilation",
+                                                "label": "Combustion Ventilation",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Sealants & Junctions",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Mould/Condensation Issues",
+                                                "label": "Mould/Condensation Issues",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Sealants & Junctions",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Damp Issues",
+                                                "label": "Damp Issues",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Sealants & Junctions",
+                                            "submits": [{
+                                                "type": "selectInput",
+                                                "value": "Heating Type",
+                                                "label": "Heating Type",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Sealants & Junctions",
+                                            "submits": [{
+                                                "type": "textInput",
+                                                "value": "",
+                                                "label": "Boiler (Make and Model)",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        },
+                                        {
+                                            "title": "Sealants & Junctions",
+                                            "submits": [{
+                                                "type": "photoInput",
+                                                "value": "Eaves Clear",
+                                                "label": "Eaves Clear",
+                                                "conditional": true,
+                                                "comment": ""
+                                            }]
+                                        }
+
+                                    ]
+                                }
+                            }]
+                        }]
+                    }
+                }, {
+                    "cols": {
+                        "styles": "",
+                        "items": [{
+                            "elements": [{
+                                    "type": "textareaInput",
                                     "value": "",
-                                    "label": "Boiler (Make and Model)",
-                                    "conditional": true,
-                                    "comment": ""
+                                    "label": "Conclusions"
                                 },
                                 {
-                                    "type": "photoInput",
-                                    "value": "Eaves Clear",
-                                    "label": "Eaves Clear",
-                                    "conditional": true,
-                                    "comment": ""
+                                    "type": "textareaInput",
+                                    "value": "",
+                                    "label": "Recommendations"
                                 }
                             ]
                         }]
                     }
                 }
-
             ]
         },
         "formFooter": {
-
+            "rows": [{
+                "cols": {
+                    "styles": "",
+                    "items": [{
+                        "elements": [{
+                            "type": "submitButton",
+                            "value": "",
+                            "label": "Submit"
+                        }]
+                    }]
+                }
+            }]
         }
     }
 }

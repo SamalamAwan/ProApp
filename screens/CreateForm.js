@@ -10,8 +10,15 @@ import * as dummyJSON from "../dummyForm.json"
 import * as SiteInspectionForm from "../siteInspectionForm.json";
 import { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
+import Animated, {
+  useSharedValue,
+  withTiming,
+  useAnimatedStyle,
+  Easing,
+} from 'react-native-reanimated';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-const ListItem = ({ item }) => {
+const ListItem = ({ item, navigation }) => {
   const [listItemElements, setListItemElements] = React.useState(null)
 
   React.useEffect(() => {
@@ -19,9 +26,9 @@ const ListItem = ({ item }) => {
     //console.log("listItem", listItems)
     if (listItems) {
       let listItemObjs = Object.keys(listItems).map(key => (
-        <View key={key} style={{flex:(listItems[key].type == "textInput" || listItems[key].type == "selectInput" ? 4 : 1), borderWidth:1, padding:0, marginHorizontal:2}}>
-        <Element key={key} element={listItems[key]} />
-        </View>
+        // <View key={key} style={{flex:(listItems[key].type == "textInput" || listItems[key].type == "selectInput" ? 4 : 1), borderWidth:1, padding:0, marginHorizontal:2}}>
+        <Element key={key} element={listItems[key]} navigation={navigation}/>
+        // </View>
       ))
       setListItemElements(listItemObjs)
     }
@@ -32,25 +39,27 @@ const ListItem = ({ item }) => {
   }, [item])
 
   return (
-    <>
-    <Card style={{ marginBottom: 5, borderRadius:0, borderWidth:1,borderColor:"#999", padding:0, margin:0}}>
-      <Text style={{ paddingHorizontal: 5, fontSize:10, marginTop:2, paddingVertical:0, marginBottom:10, fontStyle:"italic",fontWeight:"bold", color:"#666" }}>{item.title}</Text>
-      <Card.Content style={{display:"flex", flexDirection:"row"}}>
-        <>
-        {listItemElements}
-        </>
-      </Card.Content>
-    </Card>
-    </>
+        listItemElements
   )
 }
 
 
-const CustomList = ({ header, values }) => {
+const CustomList = ({ header, values, navigation }) => {
   const [listItems, setListItems] = React.useState(null)
   const [listHeader, setListHeader] = React.useState("")
   const [numOfLines, setNumOfLines] = React.useState(1)
+  const [isExpanded, setIsExpanded] = React.useState(false)
   const { colors } = useTheme();
+  const borderRadius = useSharedValue(10);
+  const config = {
+    duration: 500,
+    easing: Easing.bezier(0.5, 0.01, 0, 1),
+  };
+  const style = useAnimatedStyle(() => {
+    return {
+      borderRadius: withTiming(borderRadius.value, config),
+    };
+  });
   React.useEffect(() => {
     const title = header;
     if (title) {
@@ -63,7 +72,7 @@ const CustomList = ({ header, values }) => {
     const items = values.listItems;
     if (items) {
       let itemObjs = Object.keys(items).map(key => (
-        <ListItem key={key} item={items[key]} />
+        <ListItem key={key} item={items[key]} navigation={navigation} />
       ))
       setListItems(itemObjs)
     }
@@ -85,8 +94,11 @@ const CustomList = ({ header, values }) => {
     }
   }, []);
 
+  const handleExpand = () =>{
+    setIsExpanded(!isExpanded);
+  }
   return (
-    <>
+    <View style={{ padding: 0, margin:0, backgroundColor:"#cccccc", borderRadius:(isExpanded ? 10 : 0),borderTopLeftRadius:10,borderTopRightRadius:10,borderBottomLeftRadius:10,borderBottomRightRadius:10,overflow:"hidden"}}>
     <List.Accordion
       title={listHeader != "" ? listHeader : ""}
       titleNumberOfLines={3}
@@ -96,38 +108,31 @@ const CustomList = ({ header, values }) => {
         {
           return(
           <IconButton color="black"
-            icon={isExpanded ? "arrow-down" : "menu"}
+            icon={isExpanded ? "minus" : "plus"}
             onLayout={onTextLayout}
             animated={true}
-            containerColor={"#333"}
-            iconColor={"white"}
+            iconColor={"black"}
             size={numOfLines == 1 ? 14 : numOfLines == 2 ? 20 : 28}
             style={{
-              right:-7, top:0, margin:(0,0,0,0), padding:(0,0,0,0), borderRadius:0, minHeight:"100%", flex:1, flexShrink:1, height:10,borderStartColor:"#666", borderBottomColor:(isExpanded ? "#263C19" : "#263C19"),borderTopColor:(isExpanded ? "#ffba00" : "white"), borderEndColor:(isExpanded ? "#263C19" : "black"),  borderTopWidth:2,borderWidth:3,borderBottomWidth:3
+              right:-7, top:0, margin:(0,0,0,0), padding:(0,0,0,0), borderRadius:0, minHeight:"100%", flex:1, flexShrink:1, height:10,
             }}
           />)
         }
       }
-      style={{ padding: 0, margin:0, backgroundColor:"#000"}}
-      titleStyle={{ fontSize: 10, width: "100%", padding: (0,0,0,0), margin: (0,0,0,0), flex: 1, lineHeight: 10, color:"#ffffff" }}
+      onPress={handleExpand}
+      expanded={isExpanded}
+      style={{ padding: 0, margin:0, backgroundColor:"#cccccc", borderRadius:(isExpanded ? 0 : 10),borderTopLeftRadius:10,borderTopRightRadius:10,overflow:"hidden"}}
+      titleStyle={{ fontSize: 14, width: "100%", padding: (0,0,0,0), margin: (0,0,0,0), flex: 1, lineHeight: 15, color:"#000000", fontWeight:"bold" }}
     >
-      <>
-      <View style={{backgroundColor:"#ddd", padding:2}}>
       {listItems}
-      </View>
-      </>
     </List.Accordion>
-    </>
+    </View>
   )
 }
 
 
-const Element = ({ element }) => {
-
-  React.useEffect(() => {
-    //console.log("elementtyyy", element)
-  }, [element])
-
+const Element = ({ element, navigation }) => {
+  console.log(navigation)
   if (element.type == "label") {
     return (
       <Text>{element.value}</Text>
@@ -215,7 +220,7 @@ const Element = ({ element }) => {
     )
   }
   if (element.type == "list") {
-    return <CustomList header={element.headerTitle} values={element.value}/>
+    return <CustomList header={element.headerTitle} values={element.value} navigation={navigation}/>
   }
   if (element.type == "textInput") {
     const [text, setText] = React.useState(element.value)
@@ -232,34 +237,39 @@ const Element = ({ element }) => {
     )
   }
   if (element.type == "photoInput") {
+    console.log("geere", navigation)
     const [name, setName] = React.useState(element.name)
-    console.log(element)
+    const [photoReturn, setPhotoReturn] = React.useState();
+    //console.log(element)
+    React.useEffect(()=>{console.log(photoReturn)},[photoReturn])
+
     if (element.conditional == true){
       const [reqsComment, setReqsComment] = React.useState(false);
       const [comment, setComment] = React.useState(element.comment)
       const onToggleComment = () => setReqsComment(!reqsComment);
       return (
-        <Card style={{backgroundColor:"#fdfdfd", borderRadius:10, marginBottom:10}}>
+        <Card style={{backgroundColor:"#fdfdfd", borderRadius:10, marginTop:10, margin:2, padding:2}}>
+          <>
         <Card.Content style={{display:"flex", flexDirection:"column"}}>
         <View style={{display:"flex", flexDirection:"row"}}>
-        <View style={{flex:3,justifyContent:"center", alignItems:"flex-start"}}>
+        <View style={{flex:2,justifyContent:"center", alignItems:"flex-start"}}>
         <Text style={{fontWeight:"bold", fontSize:18}}>{element.label}</Text>
         </View>
-        <View style={{flex:2,justifyContent:"flex-end", alignItems:"flex-end"}}>
+        <View style={{flex:2,justifyContent:"center", alignItems:"flex-end"}}>
           <IconButton color="black"
             icon={"camera-plus"}
             animated={true}
             containerColor={"#333"}
             iconColor={"white"}
             size={15}
-            onPress={() => console.log("hello")}
+            onPress={() => navigation.navigate("Camera", {props:{title:element.label}, setPhotoReturn:setPhotoReturn})}
             style={{
               right:0, top:0, margin:(0,0,0,0), padding:(0,0,0,0), borderRadius:0,maxHeight:30, flex:1, flexShrink:1, height:10, borderWidth:1
             }}
           />
         </View>
-        <View style={{flex:1,justifyContent:"center", alignItems:"flex-end"}}>
-          <Text>Comment</Text>
+        <View style={{flex:1,justifyContent:"flex-end", alignItems:"center", flexDirection:"row"}}>
+        <MaterialCommunityIcons name={"comment"} size={10} color={"black"} />
         <Switch color="red" value={reqsComment} onValueChange={onToggleComment} />
         </View>
         </View>
@@ -271,10 +281,11 @@ const Element = ({ element }) => {
         dense={true}
         value={comment}
         onChangeText={text => setComment(text)}
-        style={{marginTop:10, fontSize: 10, flex:1}}
+        style={{marginTop:2,marginBottom:2, fontSize: 10, flex:1}}
       />}
       </View>
         </Card.Content>
+        </>
       </Card>
 
       )
@@ -287,7 +298,7 @@ const Element = ({ element }) => {
             containerColor={"#333"}
             iconColor={"white"}
             size={10}
-            onPress={() => console.log("hello")}
+            onPress={() => navigation.navigate("Camera")}
             style={{
               right:0, top:0, margin:(0,0,0,0), padding:(0,0,0,0), borderRadius:0, minHeight:"100%", flex:1, flexShrink:1, height:10, borderWidth:1
             }}
@@ -312,19 +323,26 @@ const Element = ({ element }) => {
       </Picker>
     )
   }
+  if (element.type == "submitButton") {
+    return (
+      <View style={{justifyContent:"flex-end", display:"flex",alignItems:"stretch"}}>
+      <Button mode="contained" style={{borderRadius:5}} onPress={()=>{console.log("SUBMIT")}}>{element.label}</Button>
+      </View>
+    )
+  }
 
   return (
     <Text>No Controller for {element.type}</Text>
   )
 }
 
-const Col = ({ col, styles }) => {
+const Col = ({ col, styles, navigation }) => {
   const [elements, setElements] = React.useState(null);
   React.useEffect(() => {
     const element = col.elements;
     if (element) {
       let ElementObjs = Object.keys(element).map(key => (
-        <Element key={key} element={element[key]} />
+        <Element key={key} element={element[key]} navigation={navigation} />
       ))
       setElements(ElementObjs)
     }
@@ -339,14 +357,15 @@ const Col = ({ col, styles }) => {
 }
 
 
-const Row = ({ row }) => {
+const Row = ({ row, navigation }) => {
   const [cols, setCols] = React.useState(null);
+  //console.log(navigation)
   React.useEffect(() => {
     const cols = row.cols
     //console.log(cols)
     if (cols) {
       let ColObjs = Object.keys(cols.items).map(key => (
-        <Col key={key} col={cols.items[key]} styles={cols.styles} />
+        <Col key={key} col={cols.items[key]} styles={cols.styles} navigation={navigation} />
       ))
       setCols(ColObjs)
     }
@@ -357,7 +376,7 @@ const Row = ({ row }) => {
   }, [row])
 
   return (
-    <View style={{ display: "flex", flexDirection: "row", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "flex-start", minWidth: "100%", marginBottom: 5, borderBottomWidth: 1,paddingBottom:10, borderColor: "#ddd", paddingHorizontal: 5 }}>{cols}</View>
+    <View style={{ display: "flex", flexDirection: "row", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "flex-start", minWidth: "100%", marginBottom: 5, borderBottomWidth: 0,paddingBottom:10, borderColor: "#ddd", paddingHorizontal: 5 }}>{cols}</View>
   )
 }
 
@@ -374,7 +393,7 @@ export const CreateForm = ({ navigation, route }) => {
     const HeaderRows = header.rows;
     if (HeaderRows) {
       let HeaderRowObjs = Object.keys(HeaderRows).map(key => (
-        <Row key={key} row={HeaderRows[key]} />
+        <Row key={key} row={HeaderRows[key]} navigation={navigation} />
       ))
       setHeader(HeaderRowObjs)
     }
@@ -385,7 +404,7 @@ export const CreateForm = ({ navigation, route }) => {
     const ContentRows = content.rows
     if (ContentRows) {
       let ContentRowObjs = Object.keys(ContentRows).map(key => (
-        <Row key={key} row={ContentRows[key]} />
+        <Row key={key} row={ContentRows[key]} navigation={navigation} />
       ))
       setContent(ContentRowObjs)
     }
@@ -396,7 +415,7 @@ export const CreateForm = ({ navigation, route }) => {
     const FooterRows = footer.rows
     if (FooterRows) {
       let FooterRowObjs = Object.keys(FooterRows).map(key => (
-        <Row key={key} row={FooterRows[key]} />
+        <Row key={key} row={FooterRows[key]} navigation={navigation} />
       ))
       setFooter(FooterRowObjs)
     }
