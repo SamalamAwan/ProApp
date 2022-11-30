@@ -26,6 +26,8 @@ import { ProjectDetails } from './screens/ProjectDetails';
 import { CreateForm } from './screens/CreateForm';
 import { MakeCardScreen } from './screens/MakeCard';
 import { CameraScreen } from './screens/Camera';
+import { ActionCenter } from './screens/ActionCenter';
+import { NewDraft } from './screens/NewDraft';
 
 
 
@@ -189,8 +191,11 @@ const HomeStackScreen = () => {
         })}
         >
             <HomeStack.Screen name="Dashboard" component={HomeScreen} options={{ headerShown: false, }} />
-            {Profile.userClassName == "User" &&
+            {/* {Profile.userClassName == "User" &&
                 <HomeStack.Screen name="Projects" component={FindProjectsStackScreen} options={{ headerShown: false }} />
+            } */}
+            {Profile.userClassName == "User" &&
+                <HomeStack.Screen name="Action Center Home" component={ActionCenterStackScreen} options={{ headerShown: false }} />
             }
             {Profile.userClassName == "Packer" &&
                 <HomeStack.Screen name="Packer" component={FindProjectsStackScreen} options={{ headerShown: false }} />
@@ -202,28 +207,64 @@ const HomeStackScreen = () => {
     );
 }
 
-const FindProjectsStack = createNativeStackNavigator();
-const FindProjectsStackScreen = () => (
-    <FindProjectsStack.Navigator>
-        <FindProjectsStack.Screen
+// const FindProjectsStack = createNativeStackNavigator();
+// const FindProjectsStackScreen = () => (
+//     <FindProjectsStack.Navigator>
+//         <FindProjectsStack.Screen
+//             name="Find Projects"
+//             component={FindProjects}
+//             options={{ headerShown: false }}
+//         />
+//         <FindProjectsStack.Screen
+//             name="Project Details"
+//             component={ProjectDetails}
+//             options={{ headerShown: true }}
+//         />
+//         <FindProjectsStack.Screen
+//             name="Create Form"
+//             component={CreateForm}
+//             options={({ route }) => ({ headerShown: true, headerTitle: route.params.props.title })}
+//         />
+//         <FindProjectsStack.Screen
+//             name="Camera"
+//             component={CameraScreen}
+//             options={({ route }) => ({ headerShown: true, headerTitle: route.params.props.title })}
+//         />
+//     </FindProjectsStack.Navigator>
+// );
+
+const ActionCenterStack = createNativeStackNavigator();
+const ActionCenterStackScreen = () => (
+    <ActionCenterStack.Navigator>
+                <ActionCenterStack.Screen
+            name="Action Center"
+            component={ActionCenter}
+            options={{ headerShown: false }}
+        />
+        <ActionCenterStack.Screen
+            name="New Draft"
+            component={NewDraft}
+            options={{ headerShown: false }}
+        />
+        <ActionCenterStack.Screen
             name="Find Projects"
             component={FindProjects}
             options={{ headerShown: false }}
         />
-        <FindProjectsStack.Screen
+        <ActionCenterStack.Screen
             name="Project Details"
             component={ProjectDetails}
             options={{ headerShown: true }}
         />
-        <FindProjectsStack.Screen
+        <ActionCenterStack.Screen
             name="Create Form"
             component={CreateForm}
             options={({ route }) => ({ headerShown: true, headerTitle: route.params.props.title })}
         />
-        <FindProjectsStack.Screen
+        <ActionCenterStack.Screen
             name="Camera"
             component={CameraScreen}
             options={({ route }) => ({ headerShown: true, headerTitle: route.params.props.title })}
         />
-    </FindProjectsStack.Navigator>
+    </ActionCenterStack.Navigator>
 );
