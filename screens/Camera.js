@@ -1,14 +1,14 @@
 import React, { useContext, useRef } from "react";
 import { ScreenContainer } from '../ScreenContainer'
 import { Card, Text, Avatar, Subheading, IconButton, Button} from 'react-native-paper'
-import { TouchableOpacity, View } from "react-native";
+import { Image, TouchableOpacity, View } from "react-native";
 import { AuthContext } from "../context";
 import { useTheme } from "@react-navigation/native";
 import lightTheme from "../theme";
 import { Camera, CameraType } from 'expo-camera';
 import styles from '../styles'
 
-export const CameraScreen = ({ navigation }) => {
+export const CameraScreen = ({ navigation, route }) => {
   const [hasPermission, setHasPermission] = React.useState(null);
   const [type, setType] = React.useState(CameraType.back);
   const [photostate, setphotostate] = React.useState("DEFAULT");
@@ -26,6 +26,50 @@ export const CameraScreen = ({ navigation }) => {
   const { Profile } = React.useContext(AuthContext)
   const [permission, requestPermission] = Camera.useCameraPermissions();
   const {colors} = useTheme();
+
+
+  const takePicture = async (props) => {
+    setCaptureDisabled(true)
+    setConfirmDisabled(true)
+    if (cameraInstance) {
+      let data = null;
+      const options = { quality: 0.75, base64: true };
+      const photo = await cameraInstance.current.takePictureAsync(options)
+      let newArray = [...photoArray, photo.base64]
+      setPhotoArray(newArray)
+      newArray = []
+    }
+  };
+
+  React.useEffect(()=>{
+    const photoList = photoArray
+    console.log(photoList.length)
+    let photos = Object.keys(photoList).map((key) => {
+      return (
+      <Image key={key} source={{
+        uri: 'data:image/png;base64,'+photoList[key],
+      }}
+      style={{
+        width: 80,
+        height: 100,
+        flexShrink:1,
+        resizeMode: 'contain',
+        alignSelf: "flex-end",
+        justifyContent: "flex-end",
+        alignContent: "flex-end",
+        alignItems: "flex-end",
+        margin: 0,
+        padding: 0,
+      }}
+      />
+    )})
+    if (photos){
+      setCurrentPhotos(photos)
+      setConfirmDisabled(false)
+    }
+    setCaptureDisabled(false)
+  },[photoArray])
+
   const getRatios = async () => {
     if (cameraInstance.current) {
       let ratios = await cameraInstance.current.getSupportedRatiosAsync();
@@ -87,7 +131,7 @@ export const CameraScreen = ({ navigation }) => {
 
   return (
     <ScreenContainer stretch>
-      <View style={{
+      {/* <View style={{
         display: "flex",
         flexDirection: "row",
         justifyContent:"center",
@@ -101,23 +145,25 @@ export const CameraScreen = ({ navigation }) => {
         position: "absolute"
       }}>
              {ratioButtons}
-      </View>
+      </View> */}
       <View style={{
         display: "flex",
         flexDirection: "row",
-        justifyContent:"center",
-        alignItems:"center",
+        justifyContent:"flex-end",
+        alignItems:"flex-end",
         backgroundColor:"rgba(0,0,0,0.5)",
         margin: 0,
-        padding: 20,
-        top: 61,
+        paddingHorizontal: 5,
+        top: 0,
+        flexShrink:1,
         width: "100%",
         zIndex: 200,
         position: "absolute"
       }}>
-             {sizeButtons}
+             {/* {sizeButtons} */}
+             {currentPhotos}
       </View>
-      <Camera style={styles.camera} type={type} ref={cameraInstance} ratio={currentRatio} size={currentSize}>
+      <Camera style={styles.camera} type={type} ref={cameraInstance} /*ratio={currentRatio} size={currentSize}*/>
       </Camera>
       <IconButton
         icon="plus-box"
@@ -125,7 +171,7 @@ export const CameraScreen = ({ navigation }) => {
         style={{ backgroundColor: colors.primary, position: "absolute", bottom: 0, margin: 20 }}
         color={colors.white}
         size={50}
-        onPress={() => console.log("hi")}
+        onPress={() => takePicture()}
       />
       <IconButton
         icon="check"
@@ -133,7 +179,7 @@ export const CameraScreen = ({ navigation }) => {
         style={{ backgroundColor: colors.primary, position: "absolute", bottom: 0, margin: 20, right: 20 }}
         color={colors.white}
         size={50}
-        onPress={() => console.log("hi")}
+        onPress={() => navigation.navigate("Create Form")}
       />
     </ScreenContainer>
   );

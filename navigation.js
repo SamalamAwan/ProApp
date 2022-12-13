@@ -144,7 +144,7 @@ const HomeStackScreen = () => {
     const { colors } = useTheme();
     const { Profile } = React.useContext(AuthContext);
 
-    console.log(Profile)
+    //console.log(Profile)
 
     return (
         <HomeStack.Navigator screenOptions={({ route }) => ({
@@ -157,6 +157,11 @@ const HomeStackScreen = () => {
                             : 'account-outline';
                         break;
                     case 'Projects':
+                        iconName = focused
+                            ? 'briefcase'
+                            : 'briefcase-outline';
+                        break;
+                    case 'Action Center Home':
                         iconName = focused
                             ? 'briefcase'
                             : 'briefcase-outline';
@@ -236,7 +241,7 @@ const HomeStackScreen = () => {
 const ActionCenterStack = createNativeStackNavigator();
 const ActionCenterStackScreen = () => (
     <ActionCenterStack.Navigator>
-                <ActionCenterStack.Screen
+        <ActionCenterStack.Screen
             name="Action Center"
             component={ActionCenter}
             options={{ headerShown: false }}

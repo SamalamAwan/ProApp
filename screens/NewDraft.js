@@ -10,12 +10,12 @@ import { useFocusEffect, useTheme } from "@react-navigation/native";
 
 export const NewDraft = ({ navigation, route }) => {
 
-  const {colors} = useTheme();
-  const {Profile} = React.useContext(AuthContext);
+  const { colors } = useTheme();
+  const { Profile } = React.useContext(AuthContext);
   const [forms, setForms] = React.useState(null);
   const [formButtons, setFormButtons] = React.useState(null);
 
-    const getForms = React.useCallback(() => {
+  const getForms = React.useCallback(() => {
     let jwt = Profile.jwt
     let apikey = apiKey
     if (jwt != null) {
@@ -37,8 +37,8 @@ export const NewDraft = ({ navigation, route }) => {
           else return response.json();
         })
         .then((responseData) => {
-          if (responseData.status == true){
-          setForms(responseData.results)
+          if (responseData.status == true) {
+            setForms(responseData.results)
           }
         })
         .catch((error) => {
@@ -55,29 +55,35 @@ export const NewDraft = ({ navigation, route }) => {
   }, [navigation]);
 
 
-  React.useEffect(()=>{
-      const newForms = forms;
-      if (newForms) {
-        var newFormButtons = Object.keys(newForms).map(key => (
-          <Button key={key} mode="contained" style={{borderRadius:1, marginHorizontal:10, marginBottom:5, flex:1, minWidth:"33%", maxWidth:"45%", padding:0}} labelStyle={{color:"white", width:"98%", flexWrap:"wrap"}} onPress={() => navigation.navigate("Create Form", {props:{title:"Site Inspection"}})}>{newForms[key]["formID"]}</Button>
-        ))
-        setFormButtons(newFormButtons)
-      }
-      else {
-        setFormButtons(null)
-      }
-  },[forms])
+  React.useEffect(() => {
+    const newForms = forms;
+    if (newForms) {
+      var newFormButtons = Object.keys(newForms).map(key => (
+        <Button key={key} mode="contained" style={{ borderRadius: 1, marginHorizontal: 10, marginBottom: 5, flex: 1, minWidth: "33%", maxWidth: "45%", padding: 0 }} labelStyle={{ color: "white", width: "98%", flexWrap: "wrap" }} onPress={() => navigation.navigate("Create Form", { props: { form: newForms[key]["formID"], isDraft:true } })}>{newForms[key]["formID"]}</Button>
+      ))
+      setFormButtons(newFormButtons)
+    }
+    else {
+      setFormButtons(null)
+    }
+  }, [forms])
 
   return (
     <ScreenContainer stretch>
-      <Card style={{margin:10, backgroundColor:"#333"}}>
+      <Card style={{ margin: 10, backgroundColor: "#333" }}>
         <Card.Content>
-      </Card.Content>
+          <Text style={{ color: "white", fontSize: 30 }}>Create a New Draft</Text>
+        </Card.Content>
       </Card>
 
-      <View style={{display:"flex", flexWrap:"wrap", flexDirection:"row", justifyContent:"center"}}>
+      <View style={{ display: "flex", flexWrap: "wrap", flexDirection: "row", justifyContent: "center" }}>
         {formButtons}
       </View>
+      <Card style={{ margin: 10, backgroundColor: "#333" }}>
+        <Card.Content>
+          <Text style={{ color: "white", fontSize: 30 }}>Saved Drafts</Text>
+        </Card.Content>
+      </Card>
     </ScreenContainer>
   );
 }

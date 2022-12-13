@@ -17,8 +17,9 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import ImageCropPicker from "react-native-image-crop-picker";
 
-const ListItem = ({ item, navigation }) => {
+const ListItem = ({ item, navigation, handleFormChange }) => {
   const [listItemElements, setListItemElements] = React.useState(null)
 
   React.useEffect(() => {
@@ -26,25 +27,31 @@ const ListItem = ({ item, navigation }) => {
     //console.log("listItem", listItems)
     if (listItems) {
       let listItemObjs = Object.keys(listItems).map(key => (
-        // <View key={key} style={{flex:(listItems[key].type == "textInput" || listItems[key].type == "selectInput" ? 4 : 1), borderWidth:1, padding:0, marginHorizontal:2}}>
-        <Element key={key} element={listItems[key]} navigation={navigation}/>
-        // </View>
+        <View key={key} style={{flex:(listItems[key].type == "textInput" || listItems[key].type == "selectInput" ? 4 : 1), borderWidth:1, padding:0, marginHorizontal:2, flexDirection:"column"}}>
+        <Element key={key} element={listItems[key]} navigation={navigation} handleFormChange={handleFormChange}/>
+        </View>
       ))
       setListItemElements(listItemObjs)
     }
-    else {
-      setListItemElements(null)
-    }
-
   }, [item])
 
   return (
-        listItemElements
-  )
+            <Card style={{backgroundColor:"#fdfdfd", borderRadius:5, marginBottom:10, margin:2, paddingVertical:10}}>
+              
+          <>
+          <Text style={{marginLeft:15, marginBottom:10, fontWeight:"bold"}}>{item.title}</Text>
+        <Card.Content style={{display:"flex", flexDirection:"column"}}>
+        <View style={{display:"flex", flexDirection:"row"}}>
+        {listItemElements}
+        </View>
+        </Card.Content>
+        </>
+        </Card>
+          )
 }
 
 
-const CustomList = ({ header, values, navigation }) => {
+const CustomList = ({ header, values, navigation, handleFormChange }) => {
   const [listItems, setListItems] = React.useState(null)
   const [listHeader, setListHeader] = React.useState("")
   const [numOfLines, setNumOfLines] = React.useState(1)
@@ -61,19 +68,20 @@ const CustomList = ({ header, values, navigation }) => {
     };
   });
   React.useEffect(() => {
+    const items = values.listItems;
     const title = header;
     if (title) {
       setListHeader(title)
     }
     else {
-      setListHeader("");
+      setListHeader(null);
     }
-
-    const items = values.listItems;
     if (items) {
+      console.log(items.length)
       let itemObjs = Object.keys(items).map(key => (
-        <ListItem key={key} item={items[key]} navigation={navigation} />
+        <ListItem key={key} item={items[key]} navigation={navigation} handleFormChange={handleFormChange} />
       ))
+      console.log(itemObjs.length)
       setListItems(itemObjs)
     }
     else {
@@ -124,15 +132,24 @@ const CustomList = ({ header, values, navigation }) => {
       style={{ padding: 0, margin:0, backgroundColor:"#cccccc", borderRadius:(isExpanded ? 0 : 10),borderTopLeftRadius:10,borderTopRightRadius:10,overflow:"hidden"}}
       titleStyle={{ fontSize: 14, width: "100%", padding: (0,0,0,0), margin: (0,0,0,0), flex: 1, lineHeight: 15, color:"#000000", fontWeight:"bold" }}
     >
+      <>
+      <View style={{marginHorizontal:10}}>
       {listItems}
+      </View>
+      </>
     </List.Accordion>
     </View>
   )
 }
 
 
-const Element = ({ element, navigation }) => {
-  console.log(navigation)
+const Element = ({elementIndex, element, navigation, handleFormChange }) => {
+  // console.log(navigation)
+  //console.log(elementIndex);
+  const handleChange = (payload) =>{
+    handleFormChange({"element":elementIndex,"payload":payload, elementID:element.id})
+  }
+
   if (element.type == "label") {
     return (
       <Text>{element.value}</Text>
@@ -157,6 +174,7 @@ const Element = ({ element, navigation }) => {
         mode="outlined"
         dense={true}
         value={text}
+        onChange={e => handleChange(e.nativeEvent.text)}
         onChangeText={text => setText(text)}
         style={{ marginBottom: 10, fontSize: 10 }}
       />
@@ -220,7 +238,7 @@ const Element = ({ element, navigation }) => {
     )
   }
   if (element.type == "list") {
-    return <CustomList header={element.headerTitle} values={element.value} navigation={navigation}/>
+    return <CustomList header={element.headerTitle} values={element.value} navigation={navigation} handleFormChange={handleFormChange}/>
   }
   if (element.type == "textInput") {
     const [text, setText] = React.useState(element.value)
@@ -237,74 +255,92 @@ const Element = ({ element, navigation }) => {
     )
   }
   if (element.type == "photoInput") {
-    console.log("geere", navigation)
+    const handleImageReturn = (returnedImages) =>{
+      console.log(returnedImages)
+    }
+    // console.log("geere", navigation)
     const [name, setName] = React.useState(element.name)
+    console.log(element)
+    console.log("returned")
     const [photoReturn, setPhotoReturn] = React.useState();
-    //console.log(element)
+
     React.useEffect(()=>{console.log(photoReturn)},[photoReturn])
 
-    if (element.conditional == true){
-      const [reqsComment, setReqsComment] = React.useState(false);
-      const [comment, setComment] = React.useState(element.comment)
-      const onToggleComment = () => setReqsComment(!reqsComment);
-      return (
-        <Card style={{backgroundColor:"#fdfdfd", borderRadius:10, marginTop:10, margin:2, padding:2}}>
-          <>
-        <Card.Content style={{display:"flex", flexDirection:"column"}}>
-        <View style={{display:"flex", flexDirection:"row"}}>
-        <View style={{flex:2,justifyContent:"center", alignItems:"flex-start"}}>
-        <Text style={{fontWeight:"bold", fontSize:18}}>{element.label}</Text>
-        </View>
-        <View style={{flex:2,justifyContent:"center", alignItems:"flex-end"}}>
-          <IconButton color="black"
-            icon={"camera-plus"}
-            animated={true}
-            containerColor={"#333"}
-            iconColor={"white"}
-            size={15}
-            onPress={() => navigation.navigate("Camera", {props:{title:element.label}, setPhotoReturn:setPhotoReturn})}
-            style={{
-              right:0, top:0, margin:(0,0,0,0), padding:(0,0,0,0), borderRadius:0,maxHeight:30, flex:1, flexShrink:1, height:10, borderWidth:1
-            }}
-          />
-        </View>
-        <View style={{flex:1,justifyContent:"flex-end", alignItems:"center", flexDirection:"row"}}>
-        <MaterialCommunityIcons name={"comment"} size={10} color={"black"} />
-        <Switch color="red" value={reqsComment} onValueChange={onToggleComment} />
-        </View>
-        </View>
-        <View style={{display:"flex", flexDirection:"row"}}>
-        {reqsComment &&  <TextInput
-        label={"Comment"}
-        multiline={true}
-        mode="outlined"
-        dense={true}
-        value={comment}
-        onChangeText={text => setComment(text)}
-        style={{marginTop:2,marginBottom:2, fontSize: 10, flex:1}}
-      />}
-      </View>
-        </Card.Content>
-        </>
-      </Card>
+    // if (element.conditional == true){
+    //   const [reqsComment, setReqsComment] = React.useState(false);
+    //   const [comment, setComment] = React.useState(element.comment)
+    //   const onToggleComment = () => setReqsComment(!reqsComment);
+    //   return (
+    //     <Card style={{backgroundColor:"#fdfdfd", borderRadius:10, marginTop:10, margin:2, padding:2}}>
+    //       <>
+    //     <Card.Content style={{display:"flex", flexDirection:"column"}}>
+    //     <View style={{display:"flex", flexDirection:"row"}}>
+    //     <View style={{flex:2,justifyContent:"center", alignItems:"flex-start"}}>
+    //     <Text style={{fontWeight:"bold", fontSize:18}}>{element.label}</Text>
+    //     </View>
+    //     <View style={{flex:2,justifyContent:"center", alignItems:"flex-end"}}>
+    //       <IconButton color="black"
+    //         icon={"camera-plus"}
+    //         animated={true}
+    //         containerColor={"#333"}
+    //         iconColor={"white"}
+    //         size={15}
+    //         onPress={() => ImageCropPicker.openCamera({
+    //           cropping: false,
+    //           includeBase64:true,
+    //           mediaType:'photo'
+    //         }).then(image => {
+    //           console.log(image)
+    //         }).catch(e => { handleChange(e.data) })}
+    //         style={{
+    //           right:0, top:0, margin:(0,0,0,0), padding:(0,0,0,0), borderRadius:0,maxHeight:30, flex:1, flexShrink:1, height:10, borderWidth:1
+    //         }}
+    //       />
+    //     </View>
+    //     <View style={{flex:1,justifyContent:"flex-end", alignItems:"center", flexDirection:"row"}}>
+    //     <MaterialCommunityIcons name={"comment"} size={10} color={"black"} />
+    //     <Switch color="red" value={reqsComment} onValueChange={onToggleComment} />
+    //     </View>
+    //     </View>
+    //     <View style={{display:"flex", flexDirection:"row"}}>
+    //     {reqsComment &&  <TextInput
+    //     label={"Comment"}
+    //     multiline={true}
+    //     mode="outlined"
+    //     dense={true}
+    //     value={comment}
+    //     onChange={e => handleChange(e.nativeEvent.text)}
+    //     onChangeText={text => setComment(text)}
+    //     style={{marginTop:2,marginBottom:2, fontSize: 10, flex:1}}
+    //   />}
+    //   </View>
+    //     </Card.Content>
+    //     </>
+    //   </Card>
 
-      )
-    }
-    else{
+    //   )
+    // }
+    // else{
     return (
       <IconButton color="black"
             icon={"camera-plus"}
             animated={true}
             containerColor={"#333"}
             iconColor={"white"}
-            size={10}
-            onPress={() => navigation.navigate("Camera")}
+            size={15}
+            onPress={() => ImageCropPicker.openCamera({
+              cropping: false,
+              includeBase64:true,
+              mediaType:'photo'
+            }).then(image => {
+              console.log(image)
+            }).catch(e => { handleChange(e.data) })}
             style={{
-              right:0, top:0, margin:(0,0,0,0), padding:(0,0,0,0), borderRadius:0, minHeight:"100%", flex:1, flexShrink:1, height:10, borderWidth:1
+              right:0, top:0, margin:(0,0,0,0), padding:(0,0,0,0), borderRadius:0,maxHeight:30, flex:1, flexShrink:1, height:10, borderWidth:1
             }}
           />
     )
-          }
+          // }
   }
   if (element.type == "selectInput") {
     const [selectedLanguage, setSelectedLanguage] = React.useState(element.value);
@@ -336,13 +372,13 @@ const Element = ({ element, navigation }) => {
   )
 }
 
-const Col = ({ col, styles, navigation }) => {
+const Col = ({colIndex, col, styles, navigation, handleFormChange }) => {
   const [elements, setElements] = React.useState(null);
   React.useEffect(() => {
     const element = col.elements;
     if (element) {
       let ElementObjs = Object.keys(element).map(key => (
-        <Element key={key} element={element[key]} navigation={navigation} />
+        <Element key={key} elementIndex={{...colIndex, "element":key}} element={element[key]} navigation={navigation} handleFormChange={handleFormChange} />
       ))
       setElements(ElementObjs)
     }
@@ -357,7 +393,7 @@ const Col = ({ col, styles, navigation }) => {
 }
 
 
-const Row = ({ row, navigation }) => {
+const Row = ({rowIndex, row, navigation, handleFormChange}) => {
   const [cols, setCols] = React.useState(null);
   //console.log(navigation)
   React.useEffect(() => {
@@ -365,7 +401,7 @@ const Row = ({ row, navigation }) => {
     //console.log(cols)
     if (cols) {
       let ColObjs = Object.keys(cols.items).map(key => (
-        <Col key={key} col={cols.items[key]} styles={cols.styles} navigation={navigation} />
+        <Col key={key} colIndex={{...rowIndex, "col":key}} col={cols.items[key]} styles={cols.styles} navigation={navigation} handleFormChange={handleFormChange}/>
       ))
       setCols(ColObjs)
     }
@@ -381,19 +417,108 @@ const Row = ({ row, navigation }) => {
 }
 
 export const CreateForm = ({ navigation, route }) => {
-  const [form, setForm] = React.useState(route.params.props.title == "Site Inspection" ? SiteInspectionForm.default : dummyJSON.default);
+  //const [form, setForm] = React.useState(route.params.props.title == "Site Inspection" ? SiteInspectionForm.default : dummyJSON.default);
+  const [formId, setFormId] = React.useState(route.params.props.form);
+  const [form, setForm] = React.useState(null);
+  const [results, setResults] = React.useState(null);
   const [header, setHeader] = React.useState(null)
   const [content, setContent] = React.useState(null)
   const [footer, setFooter] = React.useState(null);
+  const {Profile} = React.useContext(AuthContext)
+
+
+  const handleFormChange = (newData) => {
+    console.log(newData);
+    let currentResults = results;
+    const servedID = newData.elementID;
+    const index = newData.element;
+    const payload = newData.payload;
+    console.log(currentResults.formSections.formHeader.rows[index.row].cols.items[index.col].elements[index.element]);
+    let formElement = null;
+    if (index.section == "header"){
+      formElement = currentResults.formSections.formHeader.rows[index.row].cols.items[index.col].elements[index.element];
+      if (formElement.id == servedID){
+        console.log("element Found")
+      }
+      else{
+        console.log("element not found")
+      }
+    }
+    if (index.section == "content"){
+      formElement = currentResults.formSections.formContent.rows[index.row].cols.items[index.col].elements[index.element];
+      if (formElement.id == servedID){
+        console.log("element Found")
+      }
+      else{
+        console.log("element not found")
+      }
+    }
+    if (index.section == "footer"){
+      formElement = currentResults.formSections.formFooter.rows[index.row].cols.items[index.col].elements[index.element];
+      if (formElement.id == servedID){
+        console.log("element Found")
+      }
+      else{
+        console.log("element not found")
+      }
+    }
+    formElement.value = payload;
+    currentResults.formSections.formHeader.rows[index.row].cols.items[index.col].elements[index.element] = formElement;
+    console.log(currentResults.formSections.formHeader.rows[index.row].cols.items[index.col].elements[index.element]);
+    setResults(currentResults);
+  }
 
   React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      getForm();
+    });
+    return unsubscribe;
+  }, [navigation]);
+
+
+  const getForm = React.useCallback(() => {
+    let jwt = Profile.jwt
+    let apikey = apiKey
+    if (jwt != null) {
+      let authGet = apikey + " " + jwt
+      let data = {
+        method: 'POST',
+        mode: "cors", // no-cors, cors, *same-origin *=default
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': authGet
+        },
+        body: JSON.stringify({
+          "action": "getFormSchemaByID",
+          "formID": formId
+        })
+      };
+      return fetch('https://api-veen-e.ewipro.com/v1/bdm/', data)
+        .then((response) => {
+          if (!response.ok) throw new Error(response.status);
+          else return response.json();
+        })
+        .then((responseData) => {
+          setResults(responseData.result.json)
+          setForm(responseData.result.json)
+        })
+        .catch((error) => {
+          alert("Unable to log in - " + error.toString());
+        });
+    }
+  }, [formId])
+
+
+  React.useEffect(() => {
+    if (form != null){
     const header = form.formSections.formHeader;
     const content = form.formSections.formContent;
     const footer = form.formSections.formFooter;
     const HeaderRows = header.rows;
+
     if (HeaderRows) {
       let HeaderRowObjs = Object.keys(HeaderRows).map(key => (
-        <Row key={key} row={HeaderRows[key]} navigation={navigation} />
+        <Row key={key} rowIndex={{"section":"header", "row":key}} row={HeaderRows[key]} navigation={navigation} handleFormChange={handleFormChange} />
       ))
       setHeader(HeaderRowObjs)
     }
@@ -404,7 +529,7 @@ export const CreateForm = ({ navigation, route }) => {
     const ContentRows = content.rows
     if (ContentRows) {
       let ContentRowObjs = Object.keys(ContentRows).map(key => (
-        <Row key={key} row={ContentRows[key]} navigation={navigation} />
+        <Row key={key} rowIndex={{"section":"content","row":key}} row={ContentRows[key]} navigation={navigation} handleFormChange={handleFormChange} />
       ))
       setContent(ContentRowObjs)
     }
@@ -415,21 +540,22 @@ export const CreateForm = ({ navigation, route }) => {
     const FooterRows = footer.rows
     if (FooterRows) {
       let FooterRowObjs = Object.keys(FooterRows).map(key => (
-        <Row key={key} row={FooterRows[key]} navigation={navigation} />
+        <Row key={key} rowIndex={{"section":"footer","row":key}} row={FooterRows[key]} navigation={navigation} handleFormChange={handleFormChange} />
       ))
       setFooter(FooterRowObjs)
     }
     else {
       setFooter(null)
     }
-
+  }
   }, [form])
 
+  
   return (
     <ScreenContainer stretch>
       <KeyboardAvoidingView behavior="position" enabled keyboardVerticalOffset={-60}>
         <ScrollView contentContainerStyle={{ paddingBottom: 0 }} style={{ paddingBottom: 0 }}>
-          {form.formName && <View style={{ margin: 10, paddingBottom: 0 }}>
+          {form != null && <View style={{ margin: 10, paddingBottom: 0 }}>
             <Title style={{ fontSize: 30, fontWeight: "bold" }}>{form.formName}</Title>
           </View>}
           {header}
