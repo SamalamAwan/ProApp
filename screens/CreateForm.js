@@ -129,7 +129,7 @@ const CustomList = ({ header, values, navigation, handleFormChange }) => {
       }
       onPress={handleExpand}
       expanded={isExpanded}
-      style={{ padding: 0, margin:0, backgroundColor:"#cccccc", borderRadius:(isExpanded ? 0 : 10),borderTopLeftRadius:10,borderTopRightRadius:10,overflow:"hidden"}}
+      style={{ padding: 0, margin:0, backgroundColor:"#cccccc", borderRadius:(isExpanded ? 0 : 10),borderTopLeftRadiwus:10,borderTopRightRadius:10,overflow:"hidden"}}
       titleStyle={{ fontSize: 14, width: "100%", padding: (0,0,0,0), margin: (0,0,0,0), flex: 1, lineHeight: 15, color:"#000000", fontWeight:"bold" }}
     >
       <>
