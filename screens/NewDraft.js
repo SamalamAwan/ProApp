@@ -1,19 +1,66 @@
 import React, { useContext } from "react";
 import { ScreenContainer } from '../ScreenContainer'
-import { Button, Card, Searchbar, Subheading, Text, Title } from 'react-native-paper'
+import { Button, Card, IconButton, Searchbar, Subheading, Text, Title, Portal, Dialog } from 'react-native-paper'
 import { AuthContext } from "../context";
 import { apiKey } from "../context";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { View } from "react-native";
 import { useFocusEffect, useTheme } from "@react-navigation/native";
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const NewDraft = ({ navigation, route }) => {
+
+
+  const DeleteConfirm = ({ deleteConfirmVisible, closeDeleteConfirm, deleteFileAsync, fileName, refreshDrafts}) => {
+    return (
+      <Portal>
+        <Dialog visible={deleteConfirmVisible} onDismiss={closeDeleteConfirm}>
+          <Dialog.Title>Are you sure you want to delete?</Dialog.Title>
+          <Dialog.Title>{fileName.replace("@form_", "").replace(/_/g, " ")}</Dialog.Title>
+          <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-evenly", alignItems: "center", marginVertical: 20 }}>
+            <Button mode="contained" contentStyle={{ justifyContent: "center", alignItems: "center", display: "flex" }} labelStyle={{ textAlign: "center", padding: 0, margin: 0 }} onPress={() => deleteFileAsync(fileName).then((res)=>
+               res ? alert("success") : alert("failed"),
+               closeDeleteConfirm(),
+               refreshDrafts(),
+
+               )}>Yes, delete.</Button>
+            <Button mode="contained" contentStyle={{ justifyContent: "center", alignItems: "center", display: "flex" }} labelStyle={{ textAlign: "center" }} buttonColor="red" onPress={() => closeDeleteConfirm()}>No, cancel</Button>
+          </View>
+        </Dialog>
+      </Portal>
+    )
+  }
+
 
   const { colors } = useTheme();
   const { Profile } = React.useContext(AuthContext);
   const [forms, setForms] = React.useState(null);
   const [formButtons, setFormButtons] = React.useState(null);
+  const [draftButtons, setDraftButtons] = React.useState(null);
+  const [formToBeDeleted, setFormToBeDeleted] = React.useState("");
+  const getAllDraftNames = async () => {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      return keys;
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+
+  const deleteFileAsync = async (formName) => {
+    if (formName != ""){
+      try {
+        await AsyncStorage.removeItem(formName);
+        return true;
+    }
+    catch(exception) {
+      console.error(exception)
+      return false;
+    }
+    }
+  }
+
 
   const getForms = React.useCallback(() => {
     let jwt = Profile.jwt
@@ -47,9 +94,68 @@ export const NewDraft = ({ navigation, route }) => {
     }
   }, [])
 
+  const getLocalForm = async (formname) =>{
+    try {
+      const forms = await AsyncStorage.getItem(formname)
+      if (forms !== null) {
+          return JSON.parse(forms)
+      }
+      else{
+          return "no"
+      }
+  } catch (e) {
+      alert(e)
+  }
+}
+  
+const startDelete = (formName) =>{
+  setDeleteConfirmVisible(true)
+  setFormToBeDeleted(formName)
+}
+  
+
+  const openDraft = (draftName) => {
+    getLocalForm(draftName).then((data) => {
+      console.log(data)
+      navigation.navigate("Create Form", { props: { draftForm: data, isDraft:true } })
+    })
+  }
+
+  const refreshDrafts = () =>{
+    getForms();
+      getAllDraftNames().then((forms) => {
+        if (forms) {
+          var savedFormButton = Object.keys(forms).map(key => {
+            return (
+            forms[key].indexOf("@form_") > -1 ? 
+            <View style={{ flex: 1, minWidth: "40%",maxWidth: "45%",marginHorizontal: 10, flexDirection:"row"}} key={key}>
+            <Button key={key} mode="contained" style={{ borderRadius: 1, marginBottom: 5, flex: 1, minWidth: "100%", maxWidth: "100%", padding: 0 }} labelStyle={{ color: "white", width: "80%", flexWrap: "wrap",textAlign:"left" }} onPress={()=> openDraft(forms[key])}>{forms[key].replace("@form_", "").replace(/_/g, " ")}</Button>
+            <IconButton color="black"
+                icon={"minus"}
+                iconColor={"white"}
+                size={20}
+                style={{
+                  right: 0, top: 0, margin: (0, 0, 0, 0), padding: (0, 0, 0, 0), borderRadius: 0, minHeight: "100%", position:"absolute", backgroundColor:"red", width:20
+                }}
+                onPress={()=>startDelete(forms[key])}
+              />
+            </View>
+            :
+            null
+          )}
+          )
+          setDraftButtons(savedFormButton)
+        }
+        });
+  }
+
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      getForms();
+      refreshDrafts();
+      // getDrafts().then((data) => {
+      //   console.log("loaded");
+      //   console.log(data);
+      // });
     });
     return unsubscribe;
   }, [navigation]);
@@ -68,6 +174,12 @@ export const NewDraft = ({ navigation, route }) => {
     }
   }, [forms])
 
+
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = React.useState(false);
+  const closeDeleteConfirm = () => {
+    setDeleteConfirmVisible(false);
+  }
+
   return (
     <ScreenContainer stretch>
       <Card style={{ margin: 10, backgroundColor: "#333" }}>
@@ -84,6 +196,12 @@ export const NewDraft = ({ navigation, route }) => {
           <Text style={{ color: "white", fontSize: 30 }}>Saved Drafts</Text>
         </Card.Content>
       </Card>
+      <View style={{ display: "flex", flexWrap: "wrap", flexDirection: "row", justifyContent: "center", maxWidth:"100%", flex:2, width:"100%", marginHorizontal: "auto", }}>
+        <>
+        {draftButtons}
+        </>
+      </View>
+      <DeleteConfirm closeDeleteConfirm={closeDeleteConfirm} deleteConfirmVisible={deleteConfirmVisible} deleteFileAsync={deleteFileAsync} fileName={formToBeDeleted} refreshDrafts={refreshDrafts} />
     </ScreenContainer>
   );
 }

@@ -1,10 +1,10 @@
 import React, { useContext } from "react";
 import { ScreenContainer } from '../ScreenContainer'
-import { Button, Card, Searchbar, Subheading, Text, TextInput, Title, List, IconButton, Switch } from 'react-native-paper'
+import { Button, Card, Searchbar, Subheading, Text, TextInput, Title, List, IconButton, Switch, FAB, Portal, Provider, Dialog, Modal, ActivityIndicator } from 'react-native-paper'
 import { AuthContext } from "../context";
 import { apiKey } from "../context";
 import { ScrollView, TouchableOpacity } from "react-native-gesture-handler";
-import { KeyboardAvoidingView, View } from "react-native";
+import { Image, ImageBackground, KeyboardAvoidingView, View } from "react-native";
 import { useTheme } from "@react-navigation/native";
 import * as dummyJSON from "../dummyForm.json"
 import * as SiteInspectionForm from "../siteInspectionForm.json";
@@ -18,40 +18,194 @@ import Animated, {
 } from 'react-native-reanimated';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import ImageCropPicker from "react-native-image-crop-picker";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Dimensions } from 'react-native';
+import { ReactNativeZoomableView } from "@openspacelabs/react-native-zoomable-view";
 
-const ListItem = ({ item, navigation, handleFormChange }) => {
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
+
+
+
+
+const DeleteConfirm = ({ deleteConfirmVisible, closeDeleteConfirm, deletePhoto, photoToBeDeleted}) => {
+  return (
+    <Portal>
+      <Dialog visible={deleteConfirmVisible} onDismiss={closeDeleteConfirm}>
+        <Dialog.Title>Are you sure you want to delete this photo?</Dialog.Title>
+        <Image style={{ width: 200, height: 200, marginHorizontal: 50 }}
+      resizeMode="cover"
+      source={{ uri: `data:image/jpeg;base64,${photoToBeDeleted.photo}` }} />
+        <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-evenly", alignItems: "center", marginVertical: 20 }}>
+          <Button mode="contained" contentStyle={{ justifyContent: "center", alignItems: "center", display: "flex" }} labelStyle={{ textAlign: "center", padding: 0, margin: 0 }} onPress={() => deletePhoto(photoToBeDeleted)}>Yes, delete.</Button>
+          <Button mode="contained" contentStyle={{ justifyContent: "center", alignItems: "center", display: "flex" }} labelStyle={{ textAlign: "center" }} buttonColor="red" onPress={() => closeDeleteConfirm()}>No, cancel</Button>
+        </View>
+      </Dialog>
+    </Portal>
+  )
+}
+
+const PhotoDisplayer = ({ visible, hidePhotoViewer, photo, startDeletePhoto, photoViewerInputID }) => {
+  const { colors } = useTheme();
+  const [isLoading, setIsLoading] = React.useState(true);
+  const hide = () =>{
+    setIsLoading(true)
+    hidePhotoViewer();
+  }
+
+  React.useEffect(()=>{
+    (photo != '' ? setIsLoading(false) : null)
+    //console.log(photo)
+  },[photo])
+
+  return (
+    <Portal>
+   
+        <Modal visible={visible} onDismiss={hidePhotoViewer} style={{ width: windowWidth - 20, height: windowHeight - 150, backgroundColor: "#efefef", margin: 10, marginBottom: 0, borderWidth: 5, borderColor: colors.primary, position:"absolute", top:0 }}>
+                {isLoading &&
+        <ActivityIndicator animating={true} size="large" />
+      }
+          {!isLoading &&   <View style={{ width: windowWidth - 30, height: windowHeight, marginTop: 30,position: 'relative'}}>
+            <ReactNativeZoomableView
+              maxZoom={90} 
+              bindToBorders={true}
+            >
+              <Image
+                style={{ width: windowWidth, maxHeight: windowHeight - 160,minHeight: windowHeight - 155, resizeMode: 'cover' }}
+                source={(photo != '') ? {
+                  uri: `data:image/jpeg;base64,${photo}`
+                } : require('../assets/imageload.png')} />
+            
+            </ReactNativeZoomableView>
+            
+          </View>}
+          <View>
+          <Button mode="contained" style={{backgroundColor:"red"}} onPress={() => startDeletePhoto(photoViewerInputID, photo)}>Delete Photo</Button>
+          </View>
+          <IconButton icon={"close"} iconColor={"white"} style={{backgroundColor:"red", position:"absolute", top:50, right:0}} onPress={() => hide()}/>                
+        </Modal>
+
+    </Portal>
+  )
+}
+const ImagePreview = ({ image, sendPhotoToModal, elementID}) => {
+  return (
+    <TouchableOpacity onPress={() => sendPhotoToModal(image, elementID)}>
+    <Image style={{ width: 50, height: 50, margin: 2 }}
+      resizeMode="cover"
+      source={{ uri: `data:image/jpeg;base64,${image}` }} />
+      </TouchableOpacity>
+  )
+}
+
+
+const FileNamePrompt = ({ fileNamePromptVisible, closeFileNamePrompt, saveFileAsync }) => {
+  const [filename, setFilename] = React.useState("");
+  return (
+    <Portal>
+      <Dialog visible={fileNamePromptVisible} onDismiss={closeFileNamePrompt}>
+        <Dialog.Title>Enter File Name</Dialog.Title>
+        <Dialog.Content>
+          <TextInput
+            mode={"contained"}
+            value={filename}
+            onChangeText={(text) => setFilename(text)}
+          />
+
+        </Dialog.Content>
+
+        <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-evenly", alignItems: "center", marginBottom: 20 }}>
+          <Button mode="contained" contentStyle={{ justifyContent: "center", alignItems: "center", display: "flex" }} labelStyle={{ textAlign: "center", padding: 0, margin: 0 }} onPress={() => saveFileAsync(filename)}>Save</Button>
+          <Button mode="contained" contentStyle={{ justifyContent: "center", alignItems: "center", display: "flex" }} labelStyle={{ textAlign: "center" }} buttonColor="red" onPress={() => closeFileNamePrompt()}>Cancel</Button>
+        </View>
+
+      </Dialog>
+    </Portal>
+  )
+}
+
+const FabMenu = ({ startSaveFile }) => {
+  const [state, setState] = React.useState({ open: false });
+  const { colors } = useTheme();
+  const onStateChange = ({ open }) => setState({ open });
+
+  const { open } = state;
+
+  return (
+    <Provider>
+      <Portal>
+        <FAB.Group
+          open={open}
+          visible
+          icon={open ? 'arrow-down' : 'menu'}
+          actions={[
+            {
+              icon: 'content-save',
+              label: 'Save',
+              onPress: () => startSaveFile(),
+            },
+            {
+              icon: 'check',
+              label: 'Submit',
+              onPress: () => startSubmit(),
+            },
+          ]}
+          fabStyle={{ backgroundColor: "#4c7931", borderWidth: 3, width: 50, height: 50, justifyContent: "center", alignItems: "center" }}
+          onStateChange={onStateChange}
+          onPress={() => {
+            if (open) {
+              // do something if the speed dial is open
+            }
+          }}
+        />
+      </Portal>
+    </Provider>
+  );
+};
+
+
+
+const ListItem = ({ item, navigation, handleFormChange, sendPhotoToModal, startDeletePhoto }) => {
   const [listItemElements, setListItemElements] = React.useState(null)
 
   React.useEffect(() => {
     const listItems = item.submits;
     //console.log("listItem", listItems)
     if (listItems) {
-      let listItemObjs = Object.keys(listItems).map(key => (
-        <View key={key} style={{flex:(listItems[key].type == "textInput" || listItems[key].type == "selectInput" ? 4 : 1), borderWidth:1, padding:0, marginHorizontal:2, flexDirection:"column"}}>
-        <Element key={key} element={listItems[key]} navigation={navigation} handleFormChange={handleFormChange}/>
-        </View>
-      ))
+      let listItemObjs = Object.keys(listItems).map((key) => {
+        let style = {};
+        listItems[key].type == "textareaInput" || listItems[key].type == "textInput" || listItems[key].type == "selectInput" ?
+          style = { flex: 1, borderWidth: 0, padding: 0, marginHorizontal: 2,marginVertical: 5, flexDirection: "column", minHeight:"100%" }
+          :
+          style = { borderWidth: 0, padding: 0, marginHorizontal: 2,marginVertical: 5, flexDirection: "column",flex:1 }
+        return (
+          <View key={key} style={style}>
+            <Element key={key} element={listItems[key]} navigation={navigation} handleFormChange={handleFormChange} sendPhotoToModal={sendPhotoToModal} startDeletePhoto={startDeletePhoto} />
+          </View>
+        )
+      })
       setListItemElements(listItemObjs)
     }
   }, [item])
 
   return (
-            <Card style={{backgroundColor:"#fdfdfd", borderRadius:5, marginBottom:10, margin:2, paddingVertical:10}}>
-              
-          <>
-          <Text style={{marginLeft:15, marginBottom:10, fontWeight:"bold"}}>{item.title}</Text>
-        <Card.Content style={{display:"flex", flexDirection:"column"}}>
-        <View style={{display:"flex", flexDirection:"row"}}>
-        {listItemElements}
-        </View>
+    <Card style={{ backgroundColor: "#fdfdfd", borderRadius: 5, marginBottom: 10, margin: 2, paddingVertical: 10,}}>
+      <>
+        <Text style={{ marginLeft: 15, marginBottom: 10, fontWeight: "bold" }}>{item.title}</Text>
+        <Card.Content style={{ display: "flex", flexDirection: "column" }}>
+          <View style={{ display: "flex", flexDirection: "column", justifyContent:"space-between", alignItems:"stretch", minWidth:"100%" }}>
+            <>
+            {listItemElements}
+            </>
+          </View>
         </Card.Content>
-        </>
-        </Card>
-          )
+      </>
+    </Card>
+  )
 }
 
 
-const CustomList = ({ header, values, navigation, handleFormChange }) => {
+const CustomList = ({ header, values, navigation, handleFormChange, sendPhotoToModal, startDeletePhoto }) => {
   const [listItems, setListItems] = React.useState(null)
   const [listHeader, setListHeader] = React.useState("")
   const [numOfLines, setNumOfLines] = React.useState(1)
@@ -77,11 +231,11 @@ const CustomList = ({ header, values, navigation, handleFormChange }) => {
       setListHeader(null);
     }
     if (items) {
-      console.log(items.length)
+      //console.log(items.length)
       let itemObjs = Object.keys(items).map(key => (
-        <ListItem key={key} item={items[key]} navigation={navigation} handleFormChange={handleFormChange} />
+        <ListItem key={key} item={items[key]} navigation={navigation} handleFormChange={handleFormChange} sendPhotoToModal={sendPhotoToModal} startDeletePhoto={startDeletePhoto}/>
       ))
-      console.log(itemObjs.length)
+      //console.log(itemObjs.length)
       setListItems(itemObjs)
     }
     else {
@@ -90,64 +244,63 @@ const CustomList = ({ header, values, navigation, handleFormChange }) => {
   }, [values, header])
 
   const onTextLayout = React.useCallback(e => {
-    
-    if (e.nativeEvent.layout.height < 22){
+
+    if (e.nativeEvent.layout.height < 22) {
       setNumOfLines(1)
     }
-    else if (e.nativeEvent.layout.height < 32){
+    else if (e.nativeEvent.layout.height < 32) {
       setNumOfLines(2)
     }
-    else{
+    else {
       setNumOfLines(3)
     }
   }, []);
 
-  const handleExpand = () =>{
+  const handleExpand = () => {
     setIsExpanded(!isExpanded);
   }
   return (
-    <View style={{ padding: 0, margin:0, backgroundColor:"#cccccc", borderRadius:(isExpanded ? 10 : 0),borderTopLeftRadius:10,borderTopRightRadius:10,borderBottomLeftRadius:10,borderBottomRightRadius:10,overflow:"hidden"}}>
-    <List.Accordion
-      title={listHeader != "" ? listHeader : ""}
-      titleNumberOfLines={3}
-      left={() => {<></>}}
-      right={
-        ({isExpanded}) =>
-        {
-          return(
-          <IconButton color="black"
-            icon={isExpanded ? "minus" : "plus"}
-            onLayout={onTextLayout}
-            animated={true}
-            iconColor={"black"}
-            size={numOfLines == 1 ? 14 : numOfLines == 2 ? 20 : 28}
-            style={{
-              right:-7, top:0, margin:(0,0,0,0), padding:(0,0,0,0), borderRadius:0, minHeight:"100%", flex:1, flexShrink:1, height:10,
-            }}
-          />)
+    <View style={{ padding: 0, margin: 0, backgroundColor: "#cccccc", borderRadius: (isExpanded ? 10 : 0), borderTopLeftRadius: 10, borderTopRightRadius: 10, borderBottomLeftRadius: 10, borderBottomRightRadius: 10, overflow: "hidden" }}>
+      <List.Accordion
+        title={listHeader != "" ? listHeader : ""}
+        titleNumberOfLines={3}
+        left={() => { <></> }}
+        right={
+          ({ isExpanded }) => {
+            return (
+              <IconButton color="black"
+                icon={isExpanded ? "minus" : "plus"}
+                onLayout={onTextLayout}
+                animated={true}
+                iconColor={"black"}
+                size={numOfLines == 1 ? 14 : numOfLines == 2 ? 20 : 28}
+                style={{
+                  right: -7, top: 0, margin: (0, 0, 0, 0), padding: (0, 0, 0, 0), borderRadius: 0, minHeight: "100%", flex: 1, flexShrink: 1, height: 10,
+                }}
+              />)
+          }
         }
-      }
-      onPress={handleExpand}
-      expanded={isExpanded}
-      style={{ padding: 0, margin:0, backgroundColor:"#cccccc", borderRadius:(isExpanded ? 0 : 10),borderTopLeftRadiwus:10,borderTopRightRadius:10,overflow:"hidden"}}
-      titleStyle={{ fontSize: 14, width: "100%", padding: (0,0,0,0), margin: (0,0,0,0), flex: 1, lineHeight: 15, color:"#000000", fontWeight:"bold" }}
-    >
-      <>
-      <View style={{marginHorizontal:10}}>
-      {listItems}
-      </View>
-      </>
-    </List.Accordion>
+        onPress={handleExpand}
+        expanded={isExpanded}
+        style={{ padding: 0, margin: 0, backgroundColor: "#cccccc", borderRadius: (isExpanded ? 0 : 10), borderTopLeftRadiwus: 10, borderTopRightRadius: 10, overflow: "hidden" }}
+        titleStyle={{ fontSize: 14, width: "100%", padding: (0, 0, 0, 0), margin: (0, 0, 0, 0), flex: 1, lineHeight: 15, color: "#000000", fontWeight: "bold" }}
+      >
+        <>
+          <View style={{ marginHorizontal: 10 }}>
+            {listItems}
+          </View>
+        </>
+      </List.Accordion>
     </View>
   )
 }
 
 
-const Element = ({elementIndex, element, navigation, handleFormChange }) => {
+const Element = ({ element, navigation, handleFormChange, sendPhotoToModal, startDeletePhoto }) => {
   // console.log(navigation)
-  //console.log(elementIndex);
-  const handleChange = (payload) =>{
-    handleFormChange({"element":elementIndex,"payload":payload, elementID:element.id})
+  const handleChange = (payload) => {
+    //console.log(payload)
+    handleFormChange({ "payload": payload, "elementID": element.id })
   }
 
   if (element.type == "label") {
@@ -157,7 +310,7 @@ const Element = ({elementIndex, element, navigation, handleFormChange }) => {
   }
   if (element.type == "title") {
     return (
-      <Text style={{fontWeight:"bold", fontSize:25}}>{element.value}</Text>
+      <Text style={{ fontWeight: "bold", fontSize: 25 }}>{element.value}</Text>
     )
   }
   if (element.type == "linebreak") {
@@ -176,7 +329,7 @@ const Element = ({elementIndex, element, navigation, handleFormChange }) => {
         value={text}
         onChange={e => handleChange(e.nativeEvent.text)}
         onChangeText={text => setText(text)}
-        style={{ marginBottom: 10, fontSize: 10 }}
+        style={{ marginBottom: 10, fontSize: 10}}
       />
     )
   }
@@ -238,7 +391,7 @@ const Element = ({elementIndex, element, navigation, handleFormChange }) => {
     )
   }
   if (element.type == "list") {
-    return <CustomList header={element.headerTitle} values={element.value} navigation={navigation} handleFormChange={handleFormChange}/>
+    return <CustomList header={element.headerTitle} values={element.value} navigation={navigation} handleFormChange={handleFormChange} sendPhotoToModal={sendPhotoToModal} startDeletePhoto={startDeletePhoto} />
   }
   if (element.type == "textInput") {
     const [text, setText] = React.useState(element.value)
@@ -249,105 +402,68 @@ const Element = ({elementIndex, element, navigation, handleFormChange }) => {
         left={() => <></>}
         dense={false}
         value={text}
+        onChange={e => handleChange(e.nativeEvent.text)}
         onChangeText={text => setText(text)}
-        style={{ margin:0,left:0, marginTop:0, paddingTop:0, fontSize: 10, borderRadius:0, borderTopStartRadius:0,borderTopEndRadius:0, borderWidth:0, height:20,lineHeight:10,justifyContent:"flex-start", width:"100%"}}
+        style={{ margin: 0, left: 0, marginTop: 0, paddingTop: 0, fontSize: 10, borderRadius: 0, borderTopStartRadius: 0, borderTopEndRadius: 0, borderWidth: 0, height: 20, lineHeight: 10, justifyContent: "flex-start", width: "100%", borderWidth:1, flex:1 }}
       />
     )
   }
   if (element.type == "photoInput") {
-    const handleImageReturn = (returnedImages) =>{
-      console.log(returnedImages)
-    }
-    // console.log("geere", navigation)
     const [name, setName] = React.useState(element.name)
-    console.log(element)
-    console.log("returned")
-    const [photoReturn, setPhotoReturn] = React.useState();
+    const [allPhotos, setAllPhotos] = React.useState(element.value.length > 0 ? element.value : []);
+    const [imagePreviews, setImagePreviews] = React.useState(null);
+    const handleImageReturn = (returnedImage) => {
+      if (allPhotos.length < 1) {
+        setAllPhotos([returnedImage])
+      }
+      else {
+        setAllPhotos([...allPhotos, returnedImage])
+      }
+    }
+    React.useEffect(() => {
+      const photos = allPhotos
+      setImagePreviews(null);
+      if (photos) {
+        let photoObjs = Object.keys(photos).map(key => (
+          <ImagePreview key={key} image={photos[key]} sendPhotoToModal={sendPhotoToModal} elementID={element.id}/>
+        ))
+        setImagePreviews(photoObjs)
+      }
+      handleChange(photos);
+    }, [allPhotos])
 
-    React.useEffect(()=>{console.log(photoReturn)},[photoReturn])
-
-    // if (element.conditional == true){
-    //   const [reqsComment, setReqsComment] = React.useState(false);
-    //   const [comment, setComment] = React.useState(element.comment)
-    //   const onToggleComment = () => setReqsComment(!reqsComment);
-    //   return (
-    //     <Card style={{backgroundColor:"#fdfdfd", borderRadius:10, marginTop:10, margin:2, padding:2}}>
-    //       <>
-    //     <Card.Content style={{display:"flex", flexDirection:"column"}}>
-    //     <View style={{display:"flex", flexDirection:"row"}}>
-    //     <View style={{flex:2,justifyContent:"center", alignItems:"flex-start"}}>
-    //     <Text style={{fontWeight:"bold", fontSize:18}}>{element.label}</Text>
-    //     </View>
-    //     <View style={{flex:2,justifyContent:"center", alignItems:"flex-end"}}>
-    //       <IconButton color="black"
-    //         icon={"camera-plus"}
-    //         animated={true}
-    //         containerColor={"#333"}
-    //         iconColor={"white"}
-    //         size={15}
-    //         onPress={() => ImageCropPicker.openCamera({
-    //           cropping: false,
-    //           includeBase64:true,
-    //           mediaType:'photo'
-    //         }).then(image => {
-    //           console.log(image)
-    //         }).catch(e => { handleChange(e.data) })}
-    //         style={{
-    //           right:0, top:0, margin:(0,0,0,0), padding:(0,0,0,0), borderRadius:0,maxHeight:30, flex:1, flexShrink:1, height:10, borderWidth:1
-    //         }}
-    //       />
-    //     </View>
-    //     <View style={{flex:1,justifyContent:"flex-end", alignItems:"center", flexDirection:"row"}}>
-    //     <MaterialCommunityIcons name={"comment"} size={10} color={"black"} />
-    //     <Switch color="red" value={reqsComment} onValueChange={onToggleComment} />
-    //     </View>
-    //     </View>
-    //     <View style={{display:"flex", flexDirection:"row"}}>
-    //     {reqsComment &&  <TextInput
-    //     label={"Comment"}
-    //     multiline={true}
-    //     mode="outlined"
-    //     dense={true}
-    //     value={comment}
-    //     onChange={e => handleChange(e.nativeEvent.text)}
-    //     onChangeText={text => setComment(text)}
-    //     style={{marginTop:2,marginBottom:2, fontSize: 10, flex:1}}
-    //   />}
-    //   </View>
-    //     </Card.Content>
-    //     </>
-    //   </Card>
-
-    //   )
-    // }
-    // else{
     return (
-      <IconButton color="black"
-            icon={"camera-plus"}
-            animated={true}
-            containerColor={"#333"}
-            iconColor={"white"}
-            size={15}
-            onPress={() => ImageCropPicker.openCamera({
-              cropping: false,
-              includeBase64:true,
-              mediaType:'photo'
-            }).then(image => {
-              console.log(image)
-            }).catch(e => { handleChange(e.data) })}
-            style={{
-              right:0, top:0, margin:(0,0,0,0), padding:(0,0,0,0), borderRadius:0,maxHeight:30, flex:1, flexShrink:1, height:10, borderWidth:1
-            }}
-          />
+      <View style={{flexDirection:"column", maxWidth:"100%"}}>
+        <IconButton color="black"
+          icon={"camera-plus"}
+          animated={true}
+          containerColor={"#333"}
+          iconColor={"white"}
+          size={15}
+          onPress={() => ImageCropPicker.openCamera({
+            cropping: false,
+            includeBase64: true,
+            mediaType: 'photo',
+            compressImageQuality: 0.2
+          }).then(image => {
+            handleImageReturn(image.data)
+          }).catch(e => { alert(e) })}
+          style={{
+            right: 0, top: 0, margin: (0, 0, 0, 0), padding: (0, 0, 0, 0), borderRadius: 0, maxHeight: 30, flexShrink: 1, height: 10, borderWidth: 0, flex:1,minHeight:20
+          }}
+        />
+        <ScrollView style={{flexDirection:"row"}} horizontal={true} persistentScrollbar={true} indicatorStyle="white">
+        {imagePreviews}
+        </ScrollView>
+      </View>
     )
-          // }
   }
   if (element.type == "selectInput") {
     const [selectedLanguage, setSelectedLanguage] = React.useState(element.value);
     return (
       <Picker
-      itemStyle={{margin:0,padding:0, height:20, fontSize:10}}
-      style={{ margin:0, marginTop:0, paddingTop:0, fontSize: 10, borderRadius:0, borderWidth:0, height:20,lineHeight:100,}}
+        itemStyle={{ margin: 0, padding: 0, height: 20, fontSize: 10 }}
+        style={{ margin: 0, marginTop: 0, paddingTop: 0, fontSize: 10, borderRadius: 0, borderWidth: 0, height: 20, lineHeight: 100, }}
         mode={"dropdown"}
         selectedValue={selectedLanguage}
         onValueChange={(itemValue, itemIndex) =>
@@ -359,26 +475,27 @@ const Element = ({elementIndex, element, navigation, handleFormChange }) => {
       </Picker>
     )
   }
-  if (element.type == "submitButton") {
-    return (
-      <View style={{justifyContent:"flex-end", display:"flex",alignItems:"stretch"}}>
-      <Button mode="contained" style={{borderRadius:5}} onPress={()=>{console.log("SUBMIT")}}>{element.label}</Button>
-      </View>
-    )
-  }
+  // if (element.type == "submitButton") {
+  //   return (
+  //     <View style={{ justifyContent: "flex-end", display: "flex", alignItems: "stretch" }}>
+  //       <Button mode="contained" style={{ borderRadius: 5 }} onPress={() => { console.log("SUBMIT") }}>{element.label}</Button>
+  //     </View>
+  //   )
+  // }
 
   return (
     <Text>No Controller for {element.type}</Text>
   )
 }
 
-const Col = ({colIndex, col, styles, navigation, handleFormChange }) => {
+const Col = ({ col, styles, navigation, handleFormChange, sendPhotoToModal, startDeletePhoto }) => {
   const [elements, setElements] = React.useState(null);
+
   React.useEffect(() => {
     const element = col.elements;
     if (element) {
       let ElementObjs = Object.keys(element).map(key => (
-        <Element key={key} elementIndex={{...colIndex, "element":key}} element={element[key]} navigation={navigation} handleFormChange={handleFormChange} />
+        <Element key={key} element={element[key]} navigation={navigation} handleFormChange={handleFormChange} sendPhotoToModal={sendPhotoToModal} />
       ))
       setElements(ElementObjs)
     }
@@ -393,7 +510,7 @@ const Col = ({colIndex, col, styles, navigation, handleFormChange }) => {
 }
 
 
-const Row = ({rowIndex, row, navigation, handleFormChange}) => {
+const Row = ({ row, navigation, handleFormChange, sendPhotoToModal, startDeletePhoto }) => {
   const [cols, setCols] = React.useState(null);
   //console.log(navigation)
   React.useEffect(() => {
@@ -401,7 +518,7 @@ const Row = ({rowIndex, row, navigation, handleFormChange}) => {
     //console.log(cols)
     if (cols) {
       let ColObjs = Object.keys(cols.items).map(key => (
-        <Col key={key} colIndex={{...rowIndex, "col":key}} col={cols.items[key]} styles={cols.styles} navigation={navigation} handleFormChange={handleFormChange}/>
+        <Col key={key} col={cols.items[key]} styles={cols.styles} navigation={navigation} handleFormChange={handleFormChange} sendPhotoToModal={sendPhotoToModal} startDeletePhoto={startDeletePhoto}/>
       ))
       setCols(ColObjs)
     }
@@ -412,65 +529,113 @@ const Row = ({rowIndex, row, navigation, handleFormChange}) => {
   }, [row])
 
   return (
-    <View style={{ display: "flex", flexDirection: "row", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "flex-start", minWidth: "100%", marginBottom: 5, borderBottomWidth: 0,paddingBottom:10, borderColor: "#ddd", paddingHorizontal: 5 }}>{cols}</View>
+    <View style={{ display: "flex", flexDirection: "row", flexWrap: "nowrap", justifyContent: "space-between", alignItems: "flex-start", minWidth: "100%", marginBottom: 5, borderBottomWidth: 0, paddingBottom: 10, borderColor: "#ddd", paddingHorizontal: 5 }}>{cols}</View>
   )
 }
 
 export const CreateForm = ({ navigation, route }) => {
   //const [form, setForm] = React.useState(route.params.props.title == "Site Inspection" ? SiteInspectionForm.default : dummyJSON.default);
   const [formId, setFormId] = React.useState(route.params.props.form);
-  const [form, setForm] = React.useState(null);
-  const [results, setResults] = React.useState(null);
+  const [form, setForm] = React.useState(route.params.props.draftForm ? route.params.props.draftForm : null);
+  const [results, setResults] = React.useState(route.params.props.draftForm ? route.params.props.draftForm : null);
   const [header, setHeader] = React.useState(null)
   const [content, setContent] = React.useState(null)
   const [footer, setFooter] = React.useState(null);
-  const {Profile} = React.useContext(AuthContext)
+  const { Profile } = React.useContext(AuthContext);
+  const [photoDisplayVisible, setPhotoDisplayVisible] = React.useState(false)
+  const [photoForViewer, setPhotoForViewer] = React.useState('');
+  const [photoViewerInputID, setPhotoViewerInputID] = React.useState("");
+  const hidePhotoViewer = () => {
+    setPhotoDisplayVisible(false);
+  }
+  const sendPhotoToModal = (photo, elementID) => {
+    setPhotoForViewer(photo)
+    setPhotoViewerInputID(elementID);
+    setPhotoDisplayVisible(true);
+  }
 
+  const [fileNamePromptVisible, setFileNamePromptVisible] = React.useState(false);
+  const closeFileNamePrompt = () => {
+    setFileNamePromptVisible(false);
+  }
+
+  function findNestedObj(entireObj, keyToFind, valToFind) {
+    let foundObj;
+    JSON.stringify(entireObj, (_, nestedValue) => {
+      if (nestedValue && nestedValue[keyToFind] === valToFind) {
+        foundObj = nestedValue;
+      }
+      return nestedValue;
+    });
+    return foundObj;
+  };
+  function findAndReplace(object, value, replacevalue) {
+    for (var x in object) {
+      if (typeof object[x] == typeof {}) {
+        findAndReplace(object[x], value, replacevalue);
+      }
+      if (object[x] == value) {
+        object["value"] = replacevalue;
+        // break; // uncomment to stop after first replacement
+      }
+    }
+  }
 
   const handleFormChange = (newData) => {
-    console.log(newData);
+    //console.log(newData);
     let currentResults = results;
     const servedID = newData.elementID;
-    const index = newData.element;
     const payload = newData.payload;
-    console.log(currentResults.formSections.formHeader.rows[index.row].cols.items[index.col].elements[index.element]);
-    let formElement = null;
-    if (index.section == "header"){
-      formElement = currentResults.formSections.formHeader.rows[index.row].cols.items[index.col].elements[index.element];
-      if (formElement.id == servedID){
-        console.log("element Found")
-      }
-      else{
-        console.log("element not found")
-      }
-    }
-    if (index.section == "content"){
-      formElement = currentResults.formSections.formContent.rows[index.row].cols.items[index.col].elements[index.element];
-      if (formElement.id == servedID){
-        console.log("element Found")
-      }
-      else{
-        console.log("element not found")
-      }
-    }
-    if (index.section == "footer"){
-      formElement = currentResults.formSections.formFooter.rows[index.row].cols.items[index.col].elements[index.element];
-      if (formElement.id == servedID){
-        console.log("element Found")
-      }
-      else{
-        console.log("element not found")
-      }
-    }
-    formElement.value = payload;
-    currentResults.formSections.formHeader.rows[index.row].cols.items[index.col].elements[index.element] = formElement;
-    console.log(currentResults.formSections.formHeader.rows[index.row].cols.items[index.col].elements[index.element]);
+    findAndReplace(currentResults, servedID, payload);
     setResults(currentResults);
   }
 
+
+  const startSaveFile = (filename) => {
+    console.log("Saving!");
+    setFileNamePromptVisible(true);
+  }
+  const [photoToBeDeleted, setPhotoToBeDeleted] = React.useState("");
+  const startDeletePhoto = (elementId, photo) =>{
+    setPhotoDisplayVisible(false)
+    setDeleteConfirmVisible(true)
+    setPhotoToBeDeleted({"element":elementId,"photo":photo})
+  }
+
+  const deletePhoto = (photoToBeDeleted) =>{
+    let currentResults = results;
+    let currentPhotos = (findNestedObj(currentResults, 'id', photoToBeDeleted.element)).value;
+    const index = currentPhotos.indexOf(photoToBeDeleted.photo);
+if (index > -1) { // only splice array when item is found
+  currentPhotos.splice(index, 1); // 2nd parameter means remove one item only
+}
+findAndReplace(currentResults, photoToBeDeleted.element, currentPhotos);
+setDeleteConfirmVisible(false);
+  }
+
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = React.useState(false);
+  const closeDeleteConfirm = () => {
+    setDeleteConfirmVisible(false);
+  }
+
+  const saveFileAsync = async (filename) => {
+    const currentData = results
+    try {
+      const dataToSave = JSON.stringify(currentData);
+      await AsyncStorage.setItem("@form_" + filename.replace(/ /g, "_"), dataToSave)
+      console.log("saved")
+      setFileNamePromptVisible(false);
+    } catch (e) {
+      alert('Failed to save form' + e)
+    }
+  }
+
+
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      getForm();
+      if (!route.params.props.draftForm) {
+        getForm();
+      }
     });
     return unsubscribe;
   }, [navigation]);
@@ -509,48 +674,50 @@ export const CreateForm = ({ navigation, route }) => {
   }, [formId])
 
 
-  React.useEffect(() => {
-    if (form != null){
-    const header = form.formSections.formHeader;
-    const content = form.formSections.formContent;
-    const footer = form.formSections.formFooter;
-    const HeaderRows = header.rows;
+  const refreshForm = (form) =>{
+    if (form != null) {
+      const header = form.formSections.formHeader;
+      const content = form.formSections.formContent;
+      const footer = form.formSections.formFooter;
+      const HeaderRows = header.rows;
+      if (HeaderRows) {
+        let HeaderRowObjs = Object.keys(HeaderRows).map(key => (
+          <Row key={key} row={HeaderRows[key]} navigation={navigation} handleFormChange={handleFormChange} sendPhotoToModal={sendPhotoToModal} startDeletePhoto={startDeletePhoto}/>
+        ))
+        setHeader(HeaderRowObjs)
+      }
+      else {
+        setHeader(null)
+      }
 
-    if (HeaderRows) {
-      let HeaderRowObjs = Object.keys(HeaderRows).map(key => (
-        <Row key={key} rowIndex={{"section":"header", "row":key}} row={HeaderRows[key]} navigation={navigation} handleFormChange={handleFormChange} />
-      ))
-      setHeader(HeaderRowObjs)
-    }
-    else {
-      setHeader(null)
-    }
+      const ContentRows = content.rows
+      if (ContentRows) {
+        let ContentRowObjs = Object.keys(ContentRows).map(key => (
+          <Row key={key} row={ContentRows[key]} navigation={navigation} handleFormChange={handleFormChange} sendPhotoToModal={sendPhotoToModal} startDeletePhoto={startDeletePhoto}/>
+        ))
+        setContent(ContentRowObjs)
+      }
+      else {
+        setContent(null)
+      }
 
-    const ContentRows = content.rows
-    if (ContentRows) {
-      let ContentRowObjs = Object.keys(ContentRows).map(key => (
-        <Row key={key} rowIndex={{"section":"content","row":key}} row={ContentRows[key]} navigation={navigation} handleFormChange={handleFormChange} />
-      ))
-      setContent(ContentRowObjs)
-    }
-    else {
-      setContent(null)
-    }
-
-    const FooterRows = footer.rows
-    if (FooterRows) {
-      let FooterRowObjs = Object.keys(FooterRows).map(key => (
-        <Row key={key} rowIndex={{"section":"footer","row":key}} row={FooterRows[key]} navigation={navigation} handleFormChange={handleFormChange} />
-      ))
-      setFooter(FooterRowObjs)
-    }
-    else {
-      setFooter(null)
+      const FooterRows = footer.rows
+      if (FooterRows) {
+        let FooterRowObjs = Object.keys(FooterRows).map(key => (
+          <Row key={key} row={FooterRows[key]} navigation={navigation} handleFormChange={handleFormChange} sendPhotoToModal={sendPhotoToModal} startDeletePhoto={startDeletePhoto}/>
+        ))
+        setFooter(FooterRowObjs)
+      }
+      else {
+        setFooter(null)
+      }
     }
   }
+
+  React.useEffect(() => {
+    refreshForm(form);
   }, [form])
 
-  
   return (
     <ScreenContainer stretch>
       <KeyboardAvoidingView behavior="position" enabled keyboardVerticalOffset={-60}>
@@ -562,6 +729,11 @@ export const CreateForm = ({ navigation, route }) => {
           {content}
           {footer}
         </ScrollView>
+        <FabMenu startSaveFile={startSaveFile} />
+        <FileNamePrompt closeFileNamePrompt={closeFileNamePrompt} fileNamePromptVisible={fileNamePromptVisible} saveFileAsync={saveFileAsync} />
+        <DeleteConfirm closeDeleteConfirm={closeDeleteConfirm} deleteConfirmVisible={deleteConfirmVisible} deletePhoto={deletePhoto} photoToBeDeleted={photoToBeDeleted}  />
+        {photoDisplayVisible && <PhotoDisplayer visible={photoDisplayVisible} hidePhotoViewer={hidePhotoViewer} photo={photoForViewer} startDeletePhoto={startDeletePhoto} photoViewerInputID={photoViewerInputID}/>}
+        
       </KeyboardAvoidingView>
     </ScreenContainer>
   );
