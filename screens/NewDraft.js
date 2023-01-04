@@ -128,14 +128,23 @@ const startDelete = (formName) =>{
           var savedFormButton = Object.keys(forms).map(key => {
             return (
             forms[key].indexOf("@form_") > -1 ? 
-            <View style={{ flex: 1, minWidth: "40%",maxWidth: "45%",marginHorizontal: 10, flexDirection:"row"}} key={key}>
-            <Button key={key} mode="contained" style={{ borderRadius: 1, marginBottom: 5, flex: 1, minWidth: "100%", maxWidth: "100%", padding: 0 }} labelStyle={{ color: "white", width: "80%", flexWrap: "wrap",textAlign:"left" }} onPress={()=> openDraft(forms[key])}>{forms[key].replace("@form_", "").replace(/_/g, " ")}</Button>
+            <View style={{ flex: 1,marginHorizontal: 20, flexDirection:"row"}} key={key}>
+            <Button key={key} mode="contained" style={{ borderRadius: 5, marginBottom: 5, flex: 1, minWidth: "100%", maxWidth: "100%", padding: 0 }} labelStyle={{ color: "white", width: "80%", flexWrap: "wrap",textAlign:"left" }} onPress={()=> openDraft(forms[key])}>{forms[key].replace("@form_", "").replace(/_/g, " ")}</Button>
             <IconButton color="black"
                 icon={"minus"}
                 iconColor={"white"}
                 size={20}
                 style={{
-                  right: 0, top: 0, margin: (0, 0, 0, 0), padding: (0, 0, 0, 0), borderRadius: 0, minHeight: "100%", position:"absolute", backgroundColor:"red", width:20
+                  right: 40, top: 8, margin: (0, 0, 0, 0), padding: (0, 0, 0, 0), borderRadius: 5, maxHeight: 20, position:"absolute", backgroundColor:"red", width:20
+                }}
+                onPress={()=>startDelete(forms[key])}
+              />
+                    <IconButton color="black"
+                icon={"check"}
+                iconColor={"white"}
+                size={20}
+                style={{
+                  right: 10, top: 8, margin: (0, 0, 0, 0), padding: (0, 0, 0, 0), borderRadius: 5, maxHeight: 20, position:"absolute", backgroundColor:"blue", width:20
                 }}
                 onPress={()=>startDelete(forms[key])}
               />
