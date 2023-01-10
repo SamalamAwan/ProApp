@@ -11,7 +11,7 @@ import { ScreenContainer } from './ScreenContainer'
 import * as Device from 'expo-device';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import jwt_decode from "jwt-decode";
-
+import * as Updates from 'expo-updates';
 
 const androidName = Device.deviceName
 
@@ -206,11 +206,17 @@ const signOut = () =>{
     }
   }, [jwt, userToken, authNFC, userType, userName, dateGlobal, userID, userNameLogin, deviceId, isAdmin, isSupervisor, isManager, adminMode, updateError, updateError2, userClassName, updateAuth]);
 
-
+  // const getUpdate = React.useCallback(async () => {
+  //   console.log("hello this happens")
+  //     Updates.checkForUpdateAsync()
+  // }, [])
+  
   React.useEffect(() => {
     //console.log("hello this happens")
+    // getUpdate();
     if (isLoading) {
         //console.log("so does this")
+        
         getAuth().then((data) => {
           //console.log(data)
           if (data != "no"){

@@ -17,7 +17,17 @@
         "preview": {
             "distribution": "internal"
         },
-        "production": {}
+        "production-alpha-no-updates": {
+            "android": {
+                "buildType": "apk"
+            }
+        },
+        "production-alpha-updates": {
+            "android": {
+                "buildType": "apk"
+            },
+            "channel": "preview"
+        }
     },
     "submit": {
         "production": {}

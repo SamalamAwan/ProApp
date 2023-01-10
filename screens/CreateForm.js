@@ -28,14 +28,14 @@ const windowHeight = Dimensions.get('window').height;
 
 
 
-const DeleteConfirm = ({ deleteConfirmVisible, closeDeleteConfirm, deletePhoto, photoToBeDeleted}) => {
+const DeleteConfirm = ({ deleteConfirmVisible, closeDeleteConfirm, deletePhoto, photoToBeDeleted }) => {
   return (
     <Portal>
       <Dialog visible={deleteConfirmVisible} onDismiss={closeDeleteConfirm}>
         <Dialog.Title>Are you sure you want to delete this photo?</Dialog.Title>
         <Image style={{ width: 200, height: 200, marginHorizontal: 50 }}
-      resizeMode="cover"
-      source={{ uri: `data:image/jpeg;base64,${photoToBeDeleted.photo}` }} />
+          resizeMode="cover"
+          source={{ uri: `data:image/jpeg;base64,${photoToBeDeleted.photo}` }} />
         <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-evenly", alignItems: "center", marginVertical: 20 }}>
           <Button mode="contained" contentStyle={{ justifyContent: "center", alignItems: "center", display: "flex" }} labelStyle={{ textAlign: "center", padding: 0, margin: 0 }} onPress={() => deletePhoto(photoToBeDeleted)}>Yes, delete.</Button>
           <Button mode="contained" contentStyle={{ justifyContent: "center", alignItems: "center", display: "flex" }} labelStyle={{ textAlign: "center" }} buttonColor="red" onPress={() => closeDeleteConfirm()}>No, cancel</Button>
@@ -48,59 +48,80 @@ const DeleteConfirm = ({ deleteConfirmVisible, closeDeleteConfirm, deletePhoto, 
 const PhotoDisplayer = ({ visible, hidePhotoViewer, photo, startDeletePhoto, photoViewerInputID }) => {
   const { colors } = useTheme();
   const [isLoading, setIsLoading] = React.useState(true);
-  const hide = () =>{
+  const hide = () => {
     setIsLoading(true)
     hidePhotoViewer();
   }
 
-  React.useEffect(()=>{
+  React.useEffect(() => {
     (photo != '' ? setIsLoading(false) : null)
     //console.log(photo)
-  },[photo])
+  }, [photo])
 
   return (
     <Portal>
-   
-        <Modal visible={visible} onDismiss={hidePhotoViewer} style={{ width: windowWidth - 20, height: windowHeight - 150, backgroundColor: "#efefef", margin: 10, marginBottom: 0, borderWidth: 5, borderColor: colors.primary, position:"absolute", top:0 }}>
-                {isLoading &&
-        <ActivityIndicator animating={true} size="large" />
-      }
-          {!isLoading &&   <View style={{ width: windowWidth - 30, height: windowHeight, marginTop: 30,position: 'relative'}}>
-            <ReactNativeZoomableView
-              maxZoom={90} 
-              bindToBorders={true}
-            >
-              <Image
-                style={{ width: windowWidth, maxHeight: windowHeight - 160,minHeight: windowHeight - 155, resizeMode: 'cover' }}
-                source={(photo != '') ? {
-                  uri: `data:image/jpeg;base64,${photo}`
-                } : require('../assets/imageload.png')} />
-            
-            </ReactNativeZoomableView>
-            
-          </View>}
-          <View>
-          <Button mode="contained" style={{backgroundColor:"red"}} onPress={() => startDeletePhoto(photoViewerInputID, photo)}>Delete Photo</Button>
-          </View>
-          <IconButton icon={"close"} iconColor={"white"} style={{backgroundColor:"red", position:"absolute", top:50, right:0}} onPress={() => hide()}/>                
-        </Modal>
+
+      <Modal visible={visible} onDismiss={hidePhotoViewer} style={{ width: windowWidth - 20, height: windowHeight - 150, backgroundColor: "#efefef", margin: 10, marginBottom: 0, borderWidth: 5, borderColor: colors.primary, position: "absolute", top: 0 }}>
+        {isLoading &&
+          <ActivityIndicator animating={true} size="large" />
+        }
+        {!isLoading && <View style={{ width: windowWidth - 30, height: windowHeight, marginTop: 30, position: 'relative' }}>
+          <ReactNativeZoomableView
+            maxZoom={90}
+            bindToBorders={true}
+          >
+            <Image
+              style={{ width: windowWidth, maxHeight: windowHeight - 160, minHeight: windowHeight - 155, resizeMode: 'cover' }}
+              source={(photo != '') ? {
+                uri: `data:image/jpeg;base64,${photo}`
+              } : require('../assets/imageload.png')} />
+
+          </ReactNativeZoomableView>
+
+        </View>}
+        <View>
+          <Button mode="contained" style={{ backgroundColor: "red" }} onPress={() => startDeletePhoto(photoViewerInputID, photo)}>Delete Photo</Button>
+        </View>
+        <IconButton icon={"close"} iconColor={"white"} style={{ backgroundColor: "red", position: "absolute", top: 50, right: 0 }} onPress={() => hide()} />
+      </Modal>
 
     </Portal>
   )
 }
-const ImagePreview = ({ image, sendPhotoToModal, elementID}) => {
+const ImagePreview = ({ image, sendPhotoToModal, elementID }) => {
   return (
     <TouchableOpacity onPress={() => sendPhotoToModal(image, elementID)}>
-    <Image style={{ width: 50, height: 50, margin: 2 }}
-      resizeMode="cover"
-      source={{ uri: `data:image/jpeg;base64,${image}` }} />
-      </TouchableOpacity>
+      <Image style={{ width: 50, height: 50, margin: 2 }}
+        resizeMode="cover"
+        resizeMethod="resize"
+        source={{ uri: `data:image/jpeg;base64,${image}` }} />
+    </TouchableOpacity>
   )
 }
 
 
 const FileNamePrompt = ({ fileNamePromptVisible, closeFileNamePrompt, saveFileAsync }) => {
   const [filename, setFilename] = React.useState("");
+  const [nameExists, setNameExists] = React.useState(false);
+  const getAllDraftNames = async () => {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      return keys;
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  React.useEffect(() => {
+    getAllDraftNames().then((keys) => {
+      let name = filename;
+      if (keys.indexOf("@form_" + name) > -1) {
+        setNameExists(true);
+      }
+      else {
+        setNameExists(false);
+      }
+    })
+  }, [filename])
   return (
     <Portal>
       <Dialog visible={fileNamePromptVisible} onDismiss={closeFileNamePrompt}>
@@ -111,7 +132,7 @@ const FileNamePrompt = ({ fileNamePromptVisible, closeFileNamePrompt, saveFileAs
             value={filename}
             onChangeText={(text) => setFilename(text)}
           />
-
+          {nameExists && <Text style={{ color: "red" }}>Filename already exists, you will be overwriting the old version.</Text>}
         </Dialog.Content>
 
         <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-evenly", alignItems: "center", marginBottom: 20 }}>
@@ -144,11 +165,11 @@ const FabMenu = ({ startSaveFile }) => {
               label: 'Save',
               onPress: () => startSaveFile(),
             },
-            {
-              icon: 'check',
-              label: 'Submit',
-              onPress: () => startSubmit(),
-            },
+            // {
+            //   icon: 'check',
+            //   label: 'Submit',
+            //   onPress: () => startSubmit(),
+            // },
           ]}
           fabStyle={{ backgroundColor: "#4c7931", borderWidth: 3, width: 50, height: 50, justifyContent: "center", alignItems: "center" }}
           onStateChange={onStateChange}
@@ -174,10 +195,10 @@ const ListItem = ({ item, navigation, handleFormChange, sendPhotoToModal, startD
     if (listItems) {
       let listItemObjs = Object.keys(listItems).map((key) => {
         let style = {};
-        listItems[key].type == "textareaInput" || listItems[key].type == "textInput" || listItems[key].type == "selectInput" ?
-          style = { flex: 1, borderWidth: 0, padding: 0, marginHorizontal: 2,marginVertical: 5, flexDirection: "column", minHeight:"100%" }
-          :
-          style = { borderWidth: 0, padding: 0, marginHorizontal: 2,marginVertical: 5, flexDirection: "column",flex:1 }
+        // listItems[key].type == "textareaInput" || listItems[key].type == "textInput" || listItems[key].type == "selectInput" ?
+        //   style = { flex: 1, borderWidth: 0, padding: 0, marginHorizontal: 2, marginVertical: 5, flexDirection: "column", minHeight: "100%" }
+        //   :
+        style = { borderWidth: 0, padding: 0, marginHorizontal: 2, marginVertical: 5, flexDirection: "column", flex: 1 }
         return (
           <View key={key} style={style}>
             <Element key={key} element={listItems[key]} navigation={navigation} handleFormChange={handleFormChange} sendPhotoToModal={sendPhotoToModal} startDeletePhoto={startDeletePhoto} />
@@ -189,13 +210,13 @@ const ListItem = ({ item, navigation, handleFormChange, sendPhotoToModal, startD
   }, [item])
 
   return (
-    <Card style={{ backgroundColor: "#fdfdfd", borderRadius: 5, marginBottom: 10, margin: 2, paddingVertical: 10,}}>
+    <Card style={{ backgroundColor: "#fdfdfd", borderRadius: 5, marginBottom: 10, margin: 2, paddingVertical: 10, flex: 1 }}>
       <>
         <Text style={{ marginLeft: 15, marginBottom: 10, fontWeight: "bold" }}>{item.title}</Text>
         <Card.Content style={{ display: "flex", flexDirection: "column" }}>
-          <View style={{ display: "flex", flexDirection: "column", justifyContent:"space-between", alignItems:"stretch", minWidth:"100%" }}>
+          <View style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "stretch", minWidth: "100%" }}>
             <>
-            {listItemElements}
+              {listItemElements}
             </>
           </View>
         </Card.Content>
@@ -233,7 +254,7 @@ const CustomList = ({ header, values, navigation, handleFormChange, sendPhotoToM
     if (items) {
       //console.log(items.length)
       let itemObjs = Object.keys(items).map(key => (
-        <ListItem key={key} item={items[key]} navigation={navigation} handleFormChange={handleFormChange} sendPhotoToModal={sendPhotoToModal} startDeletePhoto={startDeletePhoto}/>
+        <ListItem key={key} item={items[key]} navigation={navigation} handleFormChange={handleFormChange} sendPhotoToModal={sendPhotoToModal} startDeletePhoto={startDeletePhoto} />
       ))
       //console.log(itemObjs.length)
       setListItems(itemObjs)
@@ -287,7 +308,9 @@ const CustomList = ({ header, values, navigation, handleFormChange, sendPhotoToM
       >
         <>
           <View style={{ marginHorizontal: 10 }}>
-            {listItems}
+            <>
+              {listItems}
+            </>
           </View>
         </>
       </List.Accordion>
@@ -329,7 +352,7 @@ const Element = ({ element, navigation, handleFormChange, sendPhotoToModal, star
         value={text}
         onChange={e => handleChange(e.nativeEvent.text)}
         onChangeText={text => setText(text)}
-        style={{ marginBottom: 10, fontSize: 10}}
+        style={{ marginBottom: 0, fontSize: 10, height: 48 }}
       />
     )
   }
@@ -397,14 +420,13 @@ const Element = ({ element, navigation, handleFormChange, sendPhotoToModal, star
     const [text, setText] = React.useState(element.value)
     return (
       <TextInput
-        //label={<Text style={{padding:0,margin:0,position:"absolute",top:0,left:0}}>Text Input</Text>}
-        mode="flat"
-        left={() => <></>}
-        dense={false}
+        label={element.label ? element.label : "No Label"}
+        mode="outlined"
+        dense={true}
         value={text}
         onChange={e => handleChange(e.nativeEvent.text)}
         onChangeText={text => setText(text)}
-        style={{ margin: 0, left: 0, marginTop: 0, paddingTop: 0, fontSize: 10, borderRadius: 0, borderTopStartRadius: 0, borderTopEndRadius: 0, borderWidth: 0, height: 20, lineHeight: 10, justifyContent: "flex-start", width: "100%", borderWidth:1, flex:1 }}
+        style={{ marginBottom: 0, fontSize: 10, height: 48 }}
       />
     )
   }
@@ -425,15 +447,17 @@ const Element = ({ element, navigation, handleFormChange, sendPhotoToModal, star
       setImagePreviews(null);
       if (photos) {
         let photoObjs = Object.keys(photos).map(key => (
-          <ImagePreview key={key} image={photos[key]} sendPhotoToModal={sendPhotoToModal} elementID={element.id}/>
+          <ImagePreview key={key} image={photos[key]} sendPhotoToModal={sendPhotoToModal} elementID={element.id} />
         ))
         setImagePreviews(photoObjs)
       }
       handleChange(photos);
     }, [allPhotos])
 
+
+
     return (
-      <View style={{flexDirection:"column", maxWidth:"100%"}}>
+      <View style={{ flexDirection: "column", maxWidth: "100%" }}>
         <IconButton color="black"
           icon={"camera-plus"}
           animated={true}
@@ -449,30 +473,65 @@ const Element = ({ element, navigation, handleFormChange, sendPhotoToModal, star
             handleImageReturn(image.data)
           }).catch(e => { alert(e) })}
           style={{
-            right: 0, top: 0, margin: (0, 0, 0, 0), padding: (0, 0, 0, 0), borderRadius: 0, maxHeight: 30, flexShrink: 1, height: 10, borderWidth: 0, flex:1,minHeight:20
+            right: 0, top: 0, margin: (0, 0, 0, 0), padding: (0, 0, 0, 0), borderRadius: 0, maxHeight: 30, flexShrink: 1, height: 10, borderWidth: 0, flex: 1, minHeight: 20
           }}
         />
-        <ScrollView style={{flexDirection:"row"}} horizontal={true} persistentScrollbar={true} indicatorStyle="white">
-        {imagePreviews}
+        <ScrollView style={{ flexDirection: "row" }} horizontal={true} persistentScrollbar={true} indicatorStyle="white">
+          {imagePreviews}
         </ScrollView>
       </View>
     )
   }
   if (element.type == "selectInput") {
     const [selectedLanguage, setSelectedLanguage] = React.useState(element.value);
-    return (
+    console.log(element.options)
+    const [options, setOptions] = React.useState();
+
+    React.useEffect(() => {
+      if (element.options) {
+        if (element.label){
+          let OptionsElements = [<Picker.Item label={"--- "+element.label+" ---"} style={{fontWeight:"bold",color:"#777777"}} value="" key={-1}/>];
+          OptionsElements.push(Object.keys(element.options).map(key =>
+            <Picker.Item key={key} label={element.options[key]} value={element.options[key]} />
+          )
+          )
+          setOptions(OptionsElements)
+          }
+          else{
+            let OptionsElements = Object.keys(element.options).map(key =>
+              <Picker.Item key={key} label={element.options[key]} value={element.options[key]} />
+            )
+            setOptions(OptionsElements)
+          }
+      }
+      else {
+        setOptions(null);
+      }
+    }, [element.options,element.label])
+
+    return (<View
+      style={{
+        paddingVertical: 0,
+        paddingHorizontal: 0,
+        backgroundColor: '#fefbff',
+        borderWidth: 1,
+        borderRadius: 4,
+        marginBottom: 0,
+        height: 48,
+        minWidth:"100%"
+      }}>
       <Picker
-        itemStyle={{ margin: 0, padding: 0, height: 20, fontSize: 10 }}
-        style={{ margin: 0, marginTop: 0, paddingTop: 0, fontSize: 10, borderRadius: 0, borderWidth: 0, height: 20, lineHeight: 100, }}
-        mode={"dropdown"}
+        itemStyle={{ margin: 0, padding: 0, fontSize: 10, backgroundColor: "white", marginBottom: 0, lineHeight: 0 }}
+        // style={{ margin: 0, marginTop: 0, paddingTop: 0, fontSize: 10, borderRadius: 50, borderWidth: 1, height: 20,backgroundColor:"red", marginBottom:20 }}
+        style={{ height: 42, lineHeight: 0, minWidth:"100%"}}
+        mode={"dialog"}
         selectedValue={selectedLanguage}
         onValueChange={(itemValue, itemIndex) =>
-          setSelectedLanguage(itemValue)
+          handleChange(itemValue)
         }>
-        <Picker.Item label="test" value="" />
-        <Picker.Item label="Java" style={{ borderBottomColor: "red", borderBottomWidth: 2 }} value="java" />
-        <Picker.Item label="JavaScript" value="js" />
+        {options}
       </Picker>
+    </View>
     )
   }
   // if (element.type == "submitButton") {
@@ -518,7 +577,7 @@ const Row = ({ row, navigation, handleFormChange, sendPhotoToModal, startDeleteP
     //console.log(cols)
     if (cols) {
       let ColObjs = Object.keys(cols.items).map(key => (
-        <Col key={key} col={cols.items[key]} styles={cols.styles} navigation={navigation} handleFormChange={handleFormChange} sendPhotoToModal={sendPhotoToModal} startDeletePhoto={startDeletePhoto}/>
+        <Col key={key} col={cols.items[key]} styles={cols.styles} navigation={navigation} handleFormChange={handleFormChange} sendPhotoToModal={sendPhotoToModal} startDeletePhoto={startDeletePhoto} />
       ))
       setCols(ColObjs)
     }
@@ -596,21 +655,32 @@ export const CreateForm = ({ navigation, route }) => {
     setFileNamePromptVisible(true);
   }
   const [photoToBeDeleted, setPhotoToBeDeleted] = React.useState("");
-  const startDeletePhoto = (elementId, photo) =>{
+  const startDeletePhoto = (elementId, photo) => {
     setPhotoDisplayVisible(false)
     setDeleteConfirmVisible(true)
-    setPhotoToBeDeleted({"element":elementId,"photo":photo})
+    setPhotoToBeDeleted({ "element": elementId, "photo": photo })
   }
 
-  const deletePhoto = (photoToBeDeleted) =>{
+  const deletePhoto = (photoToBeDeleted) => {
     let currentResults = results;
+    let oldResults = results
     let currentPhotos = (findNestedObj(currentResults, 'id', photoToBeDeleted.element)).value;
     const index = currentPhotos.indexOf(photoToBeDeleted.photo);
-if (index > -1) { // only splice array when item is found
-  currentPhotos.splice(index, 1); // 2nd parameter means remove one item only
-}
-findAndReplace(currentResults, photoToBeDeleted.element, currentPhotos);
-setDeleteConfirmVisible(false);
+    if (index > -1) { // only splice array when item is found
+      currentPhotos.splice(index, 1); // 2nd parameter means remove one item only
+    }
+    findAndReplace(currentResults, photoToBeDeleted.element, currentPhotos);
+    setDeleteConfirmVisible(false);
+    setTimeout(function () {
+      check(currentResults, oldResults)
+    }, 500)
+  }
+
+  const check = (new2, old) => {
+
+
+    console.log(new2 == old)
+
   }
 
   const [deleteConfirmVisible, setDeleteConfirmVisible] = React.useState(false);
@@ -674,7 +744,7 @@ setDeleteConfirmVisible(false);
   }, [formId])
 
 
-  const refreshForm = (form) =>{
+  const refreshForm = (form) => {
     if (form != null) {
       const header = form.formSections.formHeader;
       const content = form.formSections.formContent;
@@ -682,7 +752,7 @@ setDeleteConfirmVisible(false);
       const HeaderRows = header.rows;
       if (HeaderRows) {
         let HeaderRowObjs = Object.keys(HeaderRows).map(key => (
-          <Row key={key} row={HeaderRows[key]} navigation={navigation} handleFormChange={handleFormChange} sendPhotoToModal={sendPhotoToModal} startDeletePhoto={startDeletePhoto}/>
+          <Row key={key} row={HeaderRows[key]} navigation={navigation} handleFormChange={handleFormChange} sendPhotoToModal={sendPhotoToModal} startDeletePhoto={startDeletePhoto} />
         ))
         setHeader(HeaderRowObjs)
       }
@@ -693,7 +763,7 @@ setDeleteConfirmVisible(false);
       const ContentRows = content.rows
       if (ContentRows) {
         let ContentRowObjs = Object.keys(ContentRows).map(key => (
-          <Row key={key} row={ContentRows[key]} navigation={navigation} handleFormChange={handleFormChange} sendPhotoToModal={sendPhotoToModal} startDeletePhoto={startDeletePhoto}/>
+          <Row key={key} row={ContentRows[key]} navigation={navigation} handleFormChange={handleFormChange} sendPhotoToModal={sendPhotoToModal} startDeletePhoto={startDeletePhoto} />
         ))
         setContent(ContentRowObjs)
       }
@@ -704,7 +774,7 @@ setDeleteConfirmVisible(false);
       const FooterRows = footer.rows
       if (FooterRows) {
         let FooterRowObjs = Object.keys(FooterRows).map(key => (
-          <Row key={key} row={FooterRows[key]} navigation={navigation} handleFormChange={handleFormChange} sendPhotoToModal={sendPhotoToModal} startDeletePhoto={startDeletePhoto}/>
+          <Row key={key} row={FooterRows[key]} navigation={navigation} handleFormChange={handleFormChange} sendPhotoToModal={sendPhotoToModal} startDeletePhoto={startDeletePhoto} />
         ))
         setFooter(FooterRowObjs)
       }
@@ -717,6 +787,8 @@ setDeleteConfirmVisible(false);
   React.useEffect(() => {
     refreshForm(form);
   }, [form])
+
+
 
   return (
     <ScreenContainer stretch>
@@ -731,9 +803,9 @@ setDeleteConfirmVisible(false);
         </ScrollView>
         <FabMenu startSaveFile={startSaveFile} />
         <FileNamePrompt closeFileNamePrompt={closeFileNamePrompt} fileNamePromptVisible={fileNamePromptVisible} saveFileAsync={saveFileAsync} />
-        <DeleteConfirm closeDeleteConfirm={closeDeleteConfirm} deleteConfirmVisible={deleteConfirmVisible} deletePhoto={deletePhoto} photoToBeDeleted={photoToBeDeleted}  />
-        {photoDisplayVisible && <PhotoDisplayer visible={photoDisplayVisible} hidePhotoViewer={hidePhotoViewer} photo={photoForViewer} startDeletePhoto={startDeletePhoto} photoViewerInputID={photoViewerInputID}/>}
-        
+        <DeleteConfirm closeDeleteConfirm={closeDeleteConfirm} deleteConfirmVisible={deleteConfirmVisible} deletePhoto={deletePhoto} photoToBeDeleted={photoToBeDeleted} />
+        {photoDisplayVisible && <PhotoDisplayer visible={photoDisplayVisible} hidePhotoViewer={hidePhotoViewer} photo={photoForViewer} startDeletePhoto={startDeletePhoto} photoViewerInputID={photoViewerInputID} />}
+
       </KeyboardAvoidingView>
     </ScreenContainer>
   );
