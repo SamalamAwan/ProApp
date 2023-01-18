@@ -434,6 +434,9 @@ const Element = ({ element, navigation, handleFormChange, sendPhotoToModal, star
     const [name, setName] = React.useState(element.name)
     const [allPhotos, setAllPhotos] = React.useState(element.value.length > 0 ? element.value : []);
     const [imagePreviews, setImagePreviews] = React.useState(null);
+    const [imageDialogVisible, setImageDialogVisible] = React.useState(false);
+    const showImageDialog = () => setImageDialogVisible(true); 
+    const hideImageDialog = () => setImageDialogVisible(false);
     const handleImageReturn = (returnedImage) => {
       if (allPhotos.length < 1) {
         setAllPhotos([returnedImage])
@@ -464,14 +467,7 @@ const Element = ({ element, navigation, handleFormChange, sendPhotoToModal, star
           containerColor={"#333"}
           iconColor={"white"}
           size={15}
-          onPress={() => ImageCropPicker.openCamera({
-            cropping: false,
-            includeBase64: true,
-            mediaType: 'photo',
-            compressImageQuality: 0.2
-          }).then(image => {
-            handleImageReturn(image.data)
-          }).catch(e => { alert(e) })}
+          onPress={() => showImageDialog()}
           style={{
             right: 0, top: 0, margin: (0, 0, 0, 0), padding: (0, 0, 0, 0), borderRadius: 0, maxHeight: 30, flexShrink: 1, height: 10, borderWidth: 0, flex: 1, minHeight: 20
           }}
@@ -479,6 +475,49 @@ const Element = ({ element, navigation, handleFormChange, sendPhotoToModal, star
         <ScrollView style={{ flexDirection: "row" }} horizontal={true} persistentScrollbar={true} indicatorStyle="white">
           {imagePreviews}
         </ScrollView>
+        <Portal>
+          <Dialog visible={imageDialogVisible} onDismiss={hideImageDialog} style={{paddingBottom:20}}>
+            <Dialog.Title>{element.label}</Dialog.Title>
+            <View style={{flexDirection:"row",flexWrap:"wrap"}}>
+<View style={{width:"100%", minWidth:"100%",flexWrap:"nowrap",flexDirection:"row", flex:1, justifyContent:"space-evenly",paddingBottom:20}}>
+<IconButton color="black"
+          icon={"camera"}
+          animated={true}
+          containerColor={"#333"}
+          iconColor={"white"}
+          size={15} onPress={() => ImageCropPicker.openCamera({
+            cropping: false,
+            includeBase64: true,
+            mediaType: 'photo',
+            compressImageQuality: 0.2
+          }).then(image => {
+            handleImageReturn(image.data)
+          }).catch(e => { alert(e) })}
+          >
+            Camera
+            </IconButton>
+
+            <IconButton color="#666666"
+          icon={"folder-image"}
+          animated={true}
+          containerColor={"#666666"}
+          iconColor={"#666666"} onPress={() => ImageCropPicker.openPicker({
+            cropping: false,
+            includeBase64: true,
+            mediaType: 'photo',
+            compressImageQuality: 0.2,
+            multiple:true
+          }).then(image => {
+            handleImageReturn(image.data)
+          }).catch(e => { alert(e) })}
+          />
+            </View>
+            <View style={{width:"100%", minWidth:"100%",flexWrap:"nowrap",flexDirection:"row", flex:1, justifyContent:"space-evenly"}}>
+              <Button onPress={hideImageDialog}>Cancel</Button>
+              </View>
+            </View>
+          </Dialog>
+        </Portal>
       </View>
     )
   }
