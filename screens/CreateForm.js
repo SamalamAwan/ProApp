@@ -485,7 +485,7 @@ const Element = ({ element, navigation, handleFormChange, sendPhotoToModal, star
           animated={true}
           containerColor={"#333"}
           iconColor={"white"}
-          size={15} onPress={() => ImageCropPicker.openCamera({
+          size={20} onPress={() => ImageCropPicker.openCamera({
             cropping: false,
             includeBase64: true,
             mediaType: 'photo',
@@ -496,12 +496,13 @@ const Element = ({ element, navigation, handleFormChange, sendPhotoToModal, star
           >
             Camera
             </IconButton>
-
+<Text style={{marginTop:20}}>or</Text>
             <IconButton color="#666666"
           icon={"folder-image"}
           animated={true}
           containerColor={"#666666"}
-          iconColor={"#666666"} onPress={() => ImageCropPicker.openPicker({
+          size={20}
+          iconColor={"white"} onPress={() => ImageCropPicker.openPicker({
             cropping: false,
             includeBase64: true,
             mediaType: 'photo',
@@ -753,6 +754,7 @@ export const CreateForm = ({ navigation, route }) => {
   const getForm = React.useCallback(() => {
     let jwt = Profile.jwt
     let apikey = apiKey
+    console.log(formId)
     if (jwt != null) {
       let authGet = apikey + " " + jwt
       let data = {
@@ -773,8 +775,11 @@ export const CreateForm = ({ navigation, route }) => {
           else return response.json();
         })
         .then((responseData) => {
+          console.log(responseData)
+          if(responseData){
           setResults(responseData.result.json)
           setForm(responseData.result.json)
+        }
         })
         .catch((error) => {
           alert("Unable to log in - " + error.toString());
